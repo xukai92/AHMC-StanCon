@@ -1,0 +1,78 @@
+\documentclass[20pt,margin=1in,innermargin=-4.5in,blockverticalspace=-0.25in]{tikzposter}
+\geometry{paperwidth=42in,paperheight=30in}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{mathrsfs}
+\usepackage{graphicx}
+\usepackage{adjustbox}
+\usepackage{enumitem}
+\usepackage[backend=biber,style=numeric]{biblatex}
+\usepackage{emory-theme}
+
+\usepackage{mwe}    % for placeholder images
+
+\addbibresource{refs.bib}
+
+% Set theme parameters
+\tikzposterlatexaffectionproofoff
+\usetheme{EmoryTheme}
+\usecolorstyle{EmoryStyle}
+
+\title{AdvancedHMC.jl: a modular implementation of Stan’s no-U-turn sampler in Julia}
+\author{Kai Xu\textsuperscript{1}, Hong Ge\textsuperscript{2}, Will Tebbutt\textsuperscript{2} and Mohamed Tarek\textsuperscript{3}}
+\institute{
+    \textsuperscript{1}University of Edinburgh, United Kingdom \quad \textsuperscript{2}University of Cambridge, United Kingdom \quad \textsuperscript{3}UNSW Canberra, Australia
+}
+\titlegraphic{\includegraphics[width=0.075\textwidth]{turing-logo}}
+
+% begin document
+\begin{document}
+\maketitle
+\centering
+\begin{columns}
+
+\column{0.32}
+
+\block{Abstract}{
+     The No-U-Turn Sampler (NUTS) in Stan has demonstrated remarkable sampling robustness and efficiency in a wide range of Bayesian inference problems, due to the use of self-adaptive Hamiltonian dynamic trajectory simulation length, together with a fine-tuned joint adaptation of step-size and mass matrix. Motivated by these successes, we present AdvancedHMC.jl: a pure Julia implementation of Stan’s built-in NUTS algorithm and related adaptation methods. We hope AdvancedHMC.jl can expose Stan’s NUTS sampling algorithm to a wider range of users, e.g. those who want to write their models by hand, or using a different probabilistic programming language (e.g. Turing, Soss). In our package, a NUTS sampler is defined as a combination of individual components with abstractions including the `Hamiltonian` dynamics, the `Metric` space, how the dynamics are numerically simulated by an Integrator to build up a `Trajectory`, and how a candidate point is sampled from it by a `TrajectorySampler`. This abstraction is partially inspired by “A Conceptual Introduction to Hamiltonian Monte Carlo” by Michael Betancourt.
+}
+
+\block{NUTS Components}{
+    Add a table for components and an example of constructing
+}
+
+\block{Models}{
+    Briefly explain models.
+}
+
+\column{0.36}
+\block{Inference Results}{
+    Put plots for inference results and adaptation results.
+}
+
+\column{0.32}
+\block{Performance}{
+    Put plots for performance.
+}
+
+\block{Remarks}{
+    Any remarks?
+}
+
+\block{Acknowledgements}{
+    We would like to thank the developers of MCMCBenchmarks.jl, Rob Goedman and Christopher Fisher.
+    With this package we run all the benchmarks and generate all the plots used in this poster.
+}
+
+\block{References}{
+    \vspace{-1em}
+    \begin{footnotesize}
+    \printbibliography[heading=none]
+    \end{footnotesize}
+}
+    
+\end{columns}
+\end{document}
