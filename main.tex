@@ -15,6 +15,54 @@
 \usepackage{enumitem}
 \usepackage[backend=biber,style=numeric]{biblatex}
 \usepackage{emory-theme}
+\usepackage{inconsolata} % very nice fixed-width font included with texlive-full
+\usepackage{color} % more flexible names for syntax highlighting colors
+\usepackage{listings}
+\lstdefinelanguage{julia}
+{
+  keywordsprefix=\@,
+  morekeywords={
+    exit,whos,edit,load,is,isa,isequal,typeof,tuple,ntuple,uid,hash,finalizer,convert,promote,
+    subtype,typemin,typemax,realmin,realmax,sizeof,eps,promote_type,method_exists,applicable,
+    invoke,dlopen,dlsym,system,error,throw,assert,new,Inf,Nan,pi,im,begin,while,for,in,return,
+    break,continue,macro,quote,let,if,elseif,else,try,catch,end,bitstype,ccall,do,using,module,
+    import,export,importall,baremodule,immutable,local,global,const,Bool,Int,Int8,Int16,Int32,
+    Int64,Uint,Uint8,Uint16,Uint32,Uint64,Float32,Float64,Complex64,Complex128,Any,Nothing,None,
+    function,type,typealias,abstract
+  },
+  sensitive=true,
+  morecomment=[l]{\#},
+  morestring=[b]',
+  morestring=[b]" 
+}
+
+\definecolor{mygray}{RGB}{128,128,128}
+\definecolor{myblue}{RGB}{0, 0, 255}
+\definecolor{myolivegreen}{RGB}{186, 184, 108}
+\definecolor{mymaroon}{RGB}{128, 0, 0}
+
+\lstset{
+    language=julia,
+    basicstyle=\ttfamily, 
+    columns=fullflexible, % make sure to use fixed-width font, CM typewriter is NOT fixed width
+    numbers=left, 
+    numberstyle=\small\ttfamily\color{mygray},
+    stepnumber=1,              
+    numbersep=10pt, 
+    numberfirstline=true, 
+    numberblanklines=true, 
+    tabsize=4,
+    lineskip=-1.5pt,
+    extendedchars=true,
+    breaklines=true,        
+    keywordstyle=\color{myblue}\bfseries,
+    identifierstyle=, % using emph or index keywords
+    commentstyle=\sffamily\color{myolivegreen},
+    stringstyle=\color{mymaroon},
+    showstringspaces=false,
+    showtabs=false,
+    upquote=false
+}
 
 \usepackage{mwe}    % for placeholder images
 
@@ -44,6 +92,31 @@
      The No-U-Turn Sampler (NUTS) in Stan has demonstrated remarkable sampling robustness and efficiency in a wide range of Bayesian inference problems, due to the use of self-adaptive Hamiltonian dynamic trajectory simulation length, together with a fine-tuned joint adaptation of step-size and mass matrix. Motivated by these successes, we present AdvancedHMC.jl: a pure Julia implementation of Stan’s built-in NUTS algorithm and related adaptation methods. We hope AdvancedHMC.jl can expose Stan’s NUTS sampling algorithm to a wider range of users, e.g. those who want to write their models by hand, or using a different probabilistic programming language (e.g. Turing, Soss). In our package, a NUTS sampler is defined as a combination of individual components with abstractions including the `Hamiltonian` dynamics, the `Metric` space, how the dynamics are numerically simulated by an Integrator to build up a `Trajectory`, and how a candidate point is sampled from it by a `TrajectorySampler`. This abstraction is partially inspired by “A Conceptual Introduction to Hamiltonian Monte Carlo” by Michael Betancourt.
 }
 
+\block{NUTS Components}{
+    AdvancedHMC supports the following combination of different NUTS components.
+    $$
+    \{ Metric \times Integrator \times TrajectorySampler \times TerminationCriterion \circ Adaptor \},
+    $$
+    where 
+    \begin{equation*}
+        \begin{aligned} 
+            Metric &=  \{ UnitEuclidean, DiagEuclidean, DenseEuclidean \} \\ 
+            Integrator &=  \{ Leapfrog \} \\
+            TrajectorySampler &=  \{ Slice, Multinomial \} \\
+            TerminationCriterion &= \{ ClassicNoUTurn, GeneralisedNoUTurn \}
+        \end{aligned}
+    \end{equation*}
+    and $Adaptor$ could be a compositional adaptor with $M$ base adaptors
+    $$
+    Adaptor = BaseAdaptor_1 \circ BaseAdaptor_2 \cdots \circ BaseAdaptor_M,
+    $$
+    where 
+    $$
+    BaseAdaptor \in \{Preconditioner, NesterovDualAveraging\}.
+    $$
+    Note: $Preconditioner$ behaves corresponding to the choice of metric spaces.
+}
+
 \block{Models}{
     We use five models from MCMCBenchmarks.jl to compare 
     the NUTS implementation between AdvancedHMC.jl and Stan.
@@ -61,29 +134,8 @@
 
 \column{0.36}
 
-\block{NUTS Components}{
-    AdvancedHMC supports the following combination of different NUTS components.
-    $$
-    Metric \times Integrator \times TrajectorySampler \times TerminationCriterion \circ Adaptor,
-    $$
-    where 
-    \begin{equation*}
-        \begin{aligned} 
-            Metric &=  \{UnitEuclidean, DiagEuclidean, DenseEuclidean\} \\ 
-            Integrator &=  \{Leapfrog\} \\
-            TrajectorySampler &=  \{Slice, Multinomial\} \\
-            TerminationCriterion &= \{ClassicNoUTurn, GeneralisedNoUTurn\}
-        \end{aligned}
-    \end{equation*}
-    and $Adaptor$ could be a compositional adaptor with $M$ base adaptors
-    $$
-    Adaptor = BaseAdaptor_1 \circ BaseAdaptor_2 \cdots \circ BaseAdaptor_M,
-    $$
-    where 
-    $$
-    BaseAdaptor \in \{Preconditioner, NesterovDualAveraging\}.
-    $$
-    Note: $Preconditioner$ will behave differently on different metric spaces.
+\block{Example Code of building Stan's NUTS}{
+    \lstinputlisting{example.jl}
 }
 
 \block{Inference Results}{
