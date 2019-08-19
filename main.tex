@@ -2,6 +2,7 @@
     17pt,
     margin=1in,
     innermargin=-4.5in,
+    blockverticalspace=-0.15in
 ]{tikzposter}
 \geometry{paperwidth=42in,paperheight=30in}
 \usepackage[utf8]{inputenc}
@@ -123,15 +124,15 @@
     We use five models from MCMCBenchmarks.jl to compare 
     the NUTS implementation between AdvancedHMC.jl and Stan.
 
-    \section{Gaussian Model}
+    \paragraph{Gaussian Model (Gaussian)}
 
-    \section{Signal Detection Model}
+    \paragraph{Signal Detection Model (SDT)}
 
-    \section{Linear Regression Model}
+    \paragraph{Linear Regression Model (LR)}
 
-    \section{Hierarchical Poisson Regression}
+    \paragraph{Hierarchical Poisson Regression (HPR)}
 
-    \section{Linear Ballistic Accumulator}
+    \paragraph{Linear Ballistic Accumulator (LBA)}
 }
 
 \column{0.36}
@@ -141,7 +142,13 @@
 }
 
 \block{Inference Results}{
-    \begin{tikzfigure}[Gaussian]
+    To compare the inference results between AHMC and Stan,
+    we run multiple runs of NUTS of targt acceptance rate $0.8$ 
+    for $2,000$ runs with $1,000$ adaptation steps,
+    where the warm-up samples dropped out.
+    Below are figures of distributions of step size and tree depth,
+    as well as the averaged effective sample size (ESS) for different variables.
+    \begin{tikzfigure}[Gaussian (50 runs)]
         \includegraphics[width=0.1\textwidth]{./figs/Gaussian/density_epsilon.pdf}
         \includegraphics[width=0.1\textwidth]{./figs/Gaussian/density_tree_depth.pdf}
         \raisebox{\height}{
@@ -158,7 +165,23 @@
             \end{tabular}
         }
     \end{tikzfigure}
-    ESS is averaged over 25 or 50 runs.
+    \begin{tikzfigure}[SDT (100 runs)]
+        \includegraphics[width=0.1\textwidth]{./figs/SDT/density_epsilon.pdf}
+        \includegraphics[width=0.1\textwidth]{./figs/SDT/density_tree_depth.pdf}
+        \raisebox{\height}{
+            \begin{tabular}{llll}
+                \multirow{2}{*}{Sampler} & \multirow{2}{*}{$N$} & \multicolumn{2}{c}{ESS} \\
+                & & $d$ & $c$ \\
+                \hline \\
+                Stan & 10 & 710.762  & 703.327 \\
+                AHMC & 10 & 802.236 & 815.929 \\
+                Stan & 100 & 820.741 & 823.152 \\
+                AHMC & 100 & 814.308 & 846.357 \\
+                Stan & 1000 & 844.478 & 872.961 \\
+                AHMC & 1000 & 829.792 & 859.018 \\
+            \end{tabular}
+        }
+    \end{tikzfigure}
 }
 
 \column{0.32}

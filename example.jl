@@ -5,21 +5,15 @@ q_init = randn(D)   # Draw a random starting points
 
 ### Building up NUTS
 
-# Metric space
-metric = DiagEuclideanMetric(D)
-# Hamiltonian
-h = Hamiltonian(metric, logdensity, grad)
-# Initial step size
-eps_init = find_good_eps(h, q_init)
-# Integrator
-int = Leapfrog(eps_init)                    
+metric = DiagEuclideanMetric(D) # diagonal Euclidean metric space
+h = Hamiltonian(metric, logdensity_f, grad_f)   # hamiltonian on target distribution
+eps_init = find_good_eps(h, q_init) # initial step size
+int = Leapfrog(eps_init)    # Leapfrog integrator
 # Multinomial sampling with generalised no U-turn
 traj = NUTS{Multinomial,GeneralisedNoUTurn}(int)    
 # Stan's windowed adaptor
 adaptor = StanHMCAdaptor(
-    n_adapts, 
-    Preconditioner(metric), 
-    NesterovDualAveraging(target, eps_init)
+    n_adapts, Preconditioner(metric), NesterovDualAveraging(target, eps_init)
 )
 
 # Draw samples via simulating Hamiltonian dynamics
