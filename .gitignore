@@ -1,4 +1,6 @@
 *.pdf
+.DS_Store
+!figs/*/*.pdf
 
 ore latex/pdflatex auxiliary files:
 *.aux

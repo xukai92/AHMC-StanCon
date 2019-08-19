@@ -1,5 +1,5 @@
 \documentclass[
-    20pt,
+    17pt,
     margin=1in,
     innermargin=-4.5in,
 ]{tikzposter}
@@ -11,8 +11,10 @@
 \usepackage{amssymb}
 \usepackage{mathrsfs}
 \usepackage{graphicx}
+\usepackage{subcaption}
 \usepackage{adjustbox}
 \usepackage{enumitem}
+\usepackage{multirow}
 \usepackage[backend=biber,style=numeric]{biblatex}
 \usepackage{emory-theme}
 \usepackage{inconsolata} % very nice fixed-width font included with texlive-full
@@ -93,9 +95,9 @@
 }
 
 \block{NUTS Components}{
-    AdvancedHMC supports the following combination of different NUTS components.
+    AdvancedHMC supports the following combination of different NUTS components
     $$
-    \{ Metric \times Integrator \times TrajectorySampler \times TerminationCriterion \circ Adaptor \},
+    Metric \times Integrator \times TrajectorySampler \times TerminationCriterion,
     $$
     where 
     \begin{equation*}
@@ -106,15 +108,15 @@
             TerminationCriterion &= \{ ClassicNoUTurn, GeneralisedNoUTurn \}
         \end{aligned}
     \end{equation*}
-    and $Adaptor$ could be a compositional adaptor with $M$ base adaptors
-    $$
-    Adaptor = BaseAdaptor_1 \circ BaseAdaptor_2 \cdots \circ BaseAdaptor_M,
-    $$
-    where 
+    together with a compositional $Adaptor$ composed from base adaptors
     $$
     BaseAdaptor \in \{Preconditioner, NesterovDualAveraging\}.
     $$
-    Note: $Preconditioner$ behaves corresponding to the choice of metric spaces.
+
+    \textbf{Note 1}: $Preconditioner$ behaves corresponding to the choice of metric spaces.
+
+    \textbf{Note 2}: a specific composition called $StanHMCAdaptor$ is provided to construct Stan's windowed adaptor, 
+    which is proved to be robust in practice.
 }
 
 \block{Models}{
@@ -139,7 +141,24 @@
 }
 
 \block{Inference Results}{
-    Put plots for inference results and adaptation results.
+    \begin{tikzfigure}[Gaussian]
+        \includegraphics[width=0.1\textwidth]{./figs/Gaussian/density_epsilon.pdf}
+        \includegraphics[width=0.1\textwidth]{./figs/Gaussian/density_tree_depth.pdf}
+        \raisebox{\height}{
+            \begin{tabular}{llll}
+                \multirow{2}{*}{Sampler} & \multirow{2}{*}{$N$} & \multicolumn{2}{c}{ESS} \\
+                & & $\mu$ & $\sigma$ \\
+                \hline \\
+                Stan & 10 & 513.163 & 466.577 \\
+                AHMC & 10 & 503.535 & 447.722 \\
+                Stan & 100 & 786.531 & 782.231 \\
+                AHMC & 100 & 786.531 & 796.628 \\
+                Stan & 1000 & 864.01 & 876.66 \\
+                AHMC & 1000 & 832.255 & 844.452 \\
+            \end{tabular}
+        }
+    \end{tikzfigure}
+    ESS is averaged over 25 or 50 runs.
 }
 
 \column{0.32}
