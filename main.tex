@@ -137,7 +137,7 @@
 
 \column{0.36}
 
-\block{Example Code of building Stan's NUTS}{
+\block{Example Code of Building Stan's NUTS}{
     \lstinputlisting{example.jl}
 }
 
@@ -148,10 +148,10 @@
     where the warm-up samples dropped out.
     Below are figures of distributions of step size and tree depth,
     as well as the averaged effective sample size (ESS) for different variables.
-    \begin{tikzfigure}[Gaussian (50 runs)]
-        \includegraphics[width=0.1\textwidth]{./figs/Gaussian/density_epsilon.pdf}
-        \includegraphics[width=0.1\textwidth]{./figs/Gaussian/density_tree_depth.pdf}
-        \raisebox{\height}{\scalebox{0.9}{
+    \begin{tikzfigure}[Gaussian (50 runs); left to right: step size, tree depth, ESS]
+        \includegraphics[width=0.08\textwidth]{./figs/Gaussian/density_epsilon.pdf}
+        \includegraphics[width=0.08\textwidth]{./figs/Gaussian/density_tree_depth.pdf}
+        \raisebox{\height}{\scalebox{0.75}{
             \begin{tabular}{llll}
                 \multirow{2}{*}{Sampler} & \multirow{2}{*}{$N$} & \multicolumn{2}{c}{ESS} \\
                 & & $\mu$ & $\sigma$ \\
@@ -165,10 +165,10 @@
             \end{tabular}
         }}
     \end{tikzfigure}
-    \begin{tikzfigure}[SDT (100 runs)]
-        \includegraphics[width=0.1\textwidth]{./figs/SDT/density_epsilon.pdf}
-        \includegraphics[width=0.1\textwidth]{./figs/SDT/density_tree_depth.pdf}
-        \raisebox{\height}{\scalebox{0.9}{
+    \begin{tikzfigure}[SDT (100 runs); left to right: step size, tree depth, ESS]
+        \includegraphics[width=0.08\textwidth]{./figs/SDT/density_epsilon.pdf}
+        \includegraphics[width=0.08\textwidth]{./figs/SDT/density_tree_depth.pdf}
+        \raisebox{\height}{\scalebox{0.75}{
             \begin{tabular}{llll}
                 \multirow{2}{*}{Sampler} & \multirow{2}{*}{$N$} & \multicolumn{2}{c}{ESS} \\
                 & & $d$ & $c$ \\
@@ -182,9 +182,9 @@
             \end{tabular}
         }}
     \end{tikzfigure}
-    \begin{tikzfigure}[LR (50 runs)]
-        \includegraphics[width=0.1\textwidth]{./figs/Linear_Regression/density_epsilon.pdf}
-        \includegraphics[width=0.1\textwidth]{./figs/Linear_Regression/density_tree_depth.pdf}
+    \begin{tikzfigure}[LR (50 runs); left to right: step size, tree depth, ESS]
+        \includegraphics[width=0.08\textwidth]{./figs/Linear_Regression/density_epsilon.pdf}
+        \includegraphics[width=0.08\textwidth]{./figs/Linear_Regression/density_tree_depth.pdf}
         \raisebox{\height}{\scalebox{0.75}{
             \begin{tabular}{llllll}
                 \multirow{2}{*}{Sampler} & \multirow{2}{*}{$N$} & \multicolumn{4}{c}{ESS} \\

@@ -17,5 +17,4 @@ adaptor = StanHMCAdaptor(
 )
 
 # Draw samples via simulating Hamiltonian dynamics
-# - `samples` will store the samples and `stats` will store statistics for each sample
 samples, stats = sample(h, traj, q_init, n_samples, adaptor, n_adapts)
