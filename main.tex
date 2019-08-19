@@ -125,14 +125,14 @@
     the NUTS implementation between AdvancedHMC.jl and Stan.
 
     \paragraph{Gaussian Model (Gaussian)}
-
+    is a simple two parameter Gaussian distribution.
     \paragraph{Signal Detection Model (SDT)}
-
+    is a simple model used in psychophysics and signal processing, 
+    which decomposes performance in terms of discriminability and bias.
     \paragraph{Linear Regression Model (LR)}
-
     \paragraph{Hierarchical Poisson Regression (HPR)}
-
     \paragraph{Linear Ballistic Accumulator (LBA)}
+    is a cognitive model of perception and simple decision making.
 }
 
 \column{0.36}
@@ -151,7 +151,7 @@
     \begin{tikzfigure}[Gaussian (50 runs)]
         \includegraphics[width=0.1\textwidth]{./figs/Gaussian/density_epsilon.pdf}
         \includegraphics[width=0.1\textwidth]{./figs/Gaussian/density_tree_depth.pdf}
-        \raisebox{\height}{
+        \raisebox{\height}{\scalebox{0.9}{
             \begin{tabular}{llll}
                 \multirow{2}{*}{Sampler} & \multirow{2}{*}{$N$} & \multicolumn{2}{c}{ESS} \\
                 & & $\mu$ & $\sigma$ \\
@@ -163,12 +163,12 @@
                 Stan & 1000 & 864.01 & 876.66 \\
                 AHMC & 1000 & 832.255 & 844.452 \\
             \end{tabular}
-        }
+        }}
     \end{tikzfigure}
     \begin{tikzfigure}[SDT (100 runs)]
         \includegraphics[width=0.1\textwidth]{./figs/SDT/density_epsilon.pdf}
         \includegraphics[width=0.1\textwidth]{./figs/SDT/density_tree_depth.pdf}
-        \raisebox{\height}{
+        \raisebox{\height}{\scalebox{0.9}{
             \begin{tabular}{llll}
                 \multirow{2}{*}{Sampler} & \multirow{2}{*}{$N$} & \multicolumn{2}{c}{ESS} \\
                 & & $d$ & $c$ \\
@@ -180,7 +180,24 @@
                 Stan & 1000 & 844.478 & 872.961 \\
                 AHMC & 1000 & 829.792 & 859.018 \\
             \end{tabular}
-        }
+        }}
+    \end{tikzfigure}
+    \begin{tikzfigure}[LR (50 runs)]
+        \includegraphics[width=0.1\textwidth]{./figs/Linear_Regression/density_epsilon.pdf}
+        \includegraphics[width=0.1\textwidth]{./figs/Linear_Regression/density_tree_depth.pdf}
+        \raisebox{\height}{\scalebox{0.75}{
+            \begin{tabular}{llllll}
+                \multirow{2}{*}{Sampler} & \multirow{2}{*}{$N$} & \multicolumn{4}{c}{ESS} \\
+                & & $b_0$ & $\sigma$ & $b_1$ & $b_2$ \\
+                \hline \\
+                Stan & 10 & 413.939 & 266.476 & 381.219 & 423.441 \\
+                AHMC & 10 & 354.946 & 263.894 & 411.769 & 399.42 \\
+                Stan & 100 & 621.796 & 729.812 & 465.99 & 608.608 \\
+                AHMC & 100 & 473.005 & 734.189 & 606.996 & 621.543 \\
+                Stan & 1000 & 668.524 & 789.987 & 464.459 & 648.201 \\
+                AHMC & 1000 & 485.988 & 786.577 & 676.097 & 689.344 \\
+            \end{tabular}
+        }}
     \end{tikzfigure}
 }
 
