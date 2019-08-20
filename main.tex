@@ -96,7 +96,11 @@
 }
 
 \block{NUTS Components}{
-    AdvancedHMC supports the following combination of different NUTS components
+    AdvancedHMC supports the following combination of different HMC samplers.
+    $$
+    (DynamicHMC \cup \{FixedStepSizeHMC, FixedLengthHMC\}) \times Adaptor.
+    $$
+    Here $DynamicHMC$ are a combination of different NUTS components
     $$
     Metric \times Integrator \times TrajectorySampler \times TerminationCriterion,
     $$
@@ -109,7 +113,7 @@
             TerminationCriterion &= \{ ClassicNoUTurn, GeneralisedNoUTurn \}
         \end{aligned}
     \end{equation*}
-    together with a compositional $Adaptor$ composed from base adaptors
+    and $Adaptor$ is a compositional adaptor composed from base adaptors
     $$
     BaseAdaptor \in \{Preconditioner, NesterovDualAveraging\}.
     $$
