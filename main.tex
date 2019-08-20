@@ -95,10 +95,10 @@
      The No-U-Turn Sampler (NUTS) in Stan has demonstrated remarkable sampling robustness and efficiency in a wide range of Bayesian inference problems, due to the use of self-adaptive Hamiltonian dynamic trajectory simulation length, together with a fine-tuned joint adaptation of step-size and mass matrix. Motivated by these successes, we present AdvancedHMC.jl: a pure Julia implementation of Stan’s built-in NUTS algorithm and related adaptation methods. We hope AdvancedHMC.jl can expose Stan’s NUTS sampling algorithm to a wider range of users, e.g. those who want to write their models by hand, or using a different probabilistic programming language (e.g. Turing, Soss). In our package, a NUTS sampler is defined as a combination of individual components with abstractions including the `Hamiltonian` dynamics, the `Metric` space, how the dynamics are numerically simulated by an Integrator to build up a `Trajectory`, and how a candidate point is sampled from it by a `TrajectorySampler`. This abstraction is partially inspired by “A Conceptual Introduction to Hamiltonian Monte Carlo” by Michael Betancourt.
 }
 
-\block{NUTS Components}{
+\block{Hamiltonian Monte Carlo Components}{
     AdvancedHMC supports the following combination of different HMC samplers.
     $$
-    (DynamicHMC \cup \{FixedStepSizeHMC, FixedLengthHMC\}) \times Adaptor.
+    (\{FixedStepSizeHMC, FixedLengthHMC\} \cup DynamicHMC) \circ Adaptor.
     $$
     Here $DynamicHMC$ are a combination of different NUTS components
     $$
