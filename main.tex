@@ -16,7 +16,10 @@
 \usepackage{adjustbox}
 \usepackage{enumitem}
 \usepackage{multirow}
+\usepackage[american]{babel}
+\usepackage{csquotes}
 \usepackage[backend=biber,style=apa]{biblatex}
+\DeclareLanguageMapping{american}{american-apa}
 \usepackage{emory-theme}
 \usepackage{inconsolata} % very nice fixed-width font included with texlive-full
 \usepackage{color} % more flexible names for syntax highlighting colors
@@ -67,6 +70,23 @@
     upquote=false
 }
 
+\makeatletter
+\newcounter{tablecounter}
+\newenvironment{tikztable}[1][]{
+  \def \rememberparameter{#1}
+  \vspace{10pt}
+  \refstepcounter{tablecounter}
+  \begin{center}
+  }{
+    \ifx\rememberparameter\@empty
+    \else
+    \\[10pt]
+    {\small Table.~\thetablecounter: \rememberparameter}
+    \fi
+  \end{center}
+}
+\makeatother
+
 \usepackage{mwe}    % for placeholder images
 
 \addbibresource{refs.bib}
@@ -77,9 +97,10 @@
 \usecolorstyle{EmoryStyle}
 
 \title{AdvancedHMC.jl: a modular implementation of Stan’s no-U-turn sampler in Julia}
-\author{Kai Xu\textsuperscript{1}, Hong Ge\textsuperscript{2}, Will Tebbutt\textsuperscript{2} and Mohamed Tarek\textsuperscript{3}}
+\author{Kai Xu\textsuperscript{1}, Hong Ge\textsuperscript{2}, Will Tebbutt\textsuperscript{2}, Mohamed Tarek\textsuperscript{3} and Martin Trapp\textsuperscript{4,5}}
 \institute{
-    \textsuperscript{1}University of Edinburgh, United Kingdom \quad \textsuperscript{2}University of Cambridge, United Kingdom \quad \textsuperscript{3}UNSW Canberra, Australia
+    \textsuperscript{1}University of Edinburgh \quad \textsuperscript{2}University of Cambridge \quad \textsuperscript{3}UNSW Canberra \quad \textsuperscript{4}Graz University of Technology \quad
+    \textsuperscript{5}Austrian Research Institute for AI 
 }
 \titlegraphic{\includegraphics[width=0.075\textwidth]{turing-logo}}
 
@@ -92,7 +113,7 @@
 \column{0.32}
 
 \block{Abstract}{
-    The No-U-Turn Sampler (NUTS) in Stan has demonstrated remarkable sampling robustness and 
+    The No-U-Turn Sampler (NUTS) in Stan (\cite{hoffman2014no}) has demonstrated remarkable sampling robustness and 
     efficiency in a wide range of Bayesian inference problems, 
     due to the use of self-adaptive Hamiltonian dynamic trajectory simulation length, 
     together with a fine-tuned joint adaptation of step-size and mass matrix. 
@@ -114,7 +135,8 @@
 }
 
 \block{Hamiltonian Monte Carlo Components}{
-    AdvancedHMC supports the following combination of different HMC samplers.
+    Hamiltonian Monte Carlo (HMC) simulates Hamitonian dynamics to propose samples for a Markov chain (\cite{neal2011mcmc}).
+    AdvancedHMC.jl supports the combination of various HMC samplers below.
     $$
     (\{FixedStepSizeHMC, FixedLengthHMC\} \cup DynamicHMC) \circ Adaptor.
     $$
@@ -185,9 +207,9 @@
     $$
     k \sim \mathcal{T}runcated(\mathcal{N}(0.2, 0.3), 0, \infty), \quad
     \nu_d \sim \mathcal{N}(0, 3), \quad
-    x_i \sim \text{LBA}(\nu, \tau, A, k)
+    x_n \sim \text{LBA}(\nu, \tau, A, k)
     $$
-    where $mn=\min_i x_{i,2}, d = 1, \dots, N_c$ and $i = 1, \dots, N$.
+    where $mn=\min_i x_{i,2}, d = 1, \dots, N_c$ and $n = 1, \dots, N$.
 }
 
 \column{0.36}
@@ -198,17 +220,17 @@
 
 \block{Hamiltonian Trajectory}{
     To compare the Hamiltonian trajectories between AHMC and Stan,
-    we run multiple runs of NUTS of target acceptance rate $0.8$ 
+    we run multiple runs of NUTS with target acceptance rate $0.8$ 
     for $2,000$ runs with $1,000$ adaptation steps,
-    where the warm-up samples dropped out.
+    where the warm-up samples dropped off.
     Below are figures of distributions of step size and tree depth,
-    as well as the averaged effective sample size (ESS) for different variables.
+    and the mean effective sample size (ESS) for different variables.
     \begin{tikzfigure}[Gaussian (50 runs); left to right: step size, tree depth, ESS]
         \includegraphics[width=0.08\textwidth]{./figs/Gaussian/density_epsilon.pdf}
         \includegraphics[width=0.08\textwidth]{./figs/Gaussian/density_tree_depth.pdf}
         \raisebox{\height}{\scalebox{0.75}{
             \begin{tabular}{llll}
-                \multirow{2}{*}{Sampler} & \multirow{2}{*}{$N$} & \multicolumn{2}{c}{ESS} \\
+                \multirow{2}{*}{Library} & \multirow{2}{*}{$N$} & \multicolumn{2}{c}{ESS} \\
                 & & $\mu$ & $\sigma$ \\
                 \hline \\
                 Stan & 10 & 513.163 & 466.577 \\
@@ -220,12 +242,13 @@
             \end{tabular}
         }}
     \end{tikzfigure}
+    \vspace{-2em}
     \begin{tikzfigure}[SDT (100 runs); left to right: step size, tree depth, ESS]
         \includegraphics[width=0.08\textwidth]{./figs/SDT/density_epsilon.pdf}
         \includegraphics[width=0.08\textwidth]{./figs/SDT/density_tree_depth.pdf}
         \raisebox{\height}{\scalebox{0.75}{
             \begin{tabular}{llll}
-                \multirow{2}{*}{Sampler} & \multirow{2}{*}{$N$} & \multicolumn{2}{c}{ESS} \\
+                \multirow{2}{*}{Library} & \multirow{2}{*}{$N$} & \multicolumn{2}{c}{ESS} \\
                 & & $d$ & $c$ \\
                 \hline \\
                 Stan & 10 & 710.762  & 703.327 \\
@@ -237,12 +260,13 @@
             \end{tabular}
         }}
     \end{tikzfigure}
+    \vspace{-2em}
     \begin{tikzfigure}[LR (50 runs); left to right: step size, tree depth, ESS]
         \includegraphics[width=0.08\textwidth]{./figs/Linear_Regression/density_epsilon.pdf}
         \includegraphics[width=0.08\textwidth]{./figs/Linear_Regression/density_tree_depth.pdf}
         \raisebox{\height}{\scalebox{0.75}{
             \begin{tabular}{llllll}
-                \multirow{2}{*}{Sampler} & \multirow{2}{*}{$N$} & \multicolumn{4}{c}{ESS} \\
+                \multirow{2}{*}{Library} & \multirow{2}{*}{$N$} & \multicolumn{4}{c}{ESS} \\
                 & & $b_0$ & $\sigma$ & $b_1$ & $b_2$ \\
                 \hline \\
                 Stan & 10 & 413.939 & 266.476 & 381.219 & 423.441 \\
@@ -254,22 +278,129 @@
             \end{tabular}
         }}
     \end{tikzfigure}
+    \vspace{-2em}
+    \begin{tikzfigure}[HPR (25 runs); left to right: step size, tree depth, ESS (of some variables)]
+        \includegraphics[width=0.08\textwidth]{./figs/Hierarchical_Poisson/density_epsilon.pdf}
+        \includegraphics[width=0.08\textwidth]{./figs/Hierarchical_Poisson/density_tree_depth.pdf}
+        \raisebox{\height}{\scalebox{0.75}{
+            \begin{tabular}{lllll}
+                \multirow{2}{*}{Library} & \multirow{2}{*}{$N$} & \multicolumn{3}{c}{ESS} \\
+                & & $a_0$ & $a_1$ & $b_\sigma$ \\
+                \hline \\
+                Stan & 10 & 221.485 & 215.013 & 266.9 \\
+                AHMC & 10 & 216.491 & 214.459 & 258.638 \\
+                Stan & 20 & 208.286 & 207.041 & 241.08 \\
+                AHMC & 20 & 206.458 & 200.469 & 236.546 \\
+                Stan & 50 & 172.484 & 172.982 & 216.586 \\
+                AHMC & 50 & 200.755 & 201.548 & 247.384 \\
+            \end{tabular}
+        }}
+    \end{tikzfigure}
+    \vspace{-2em}
+    \begin{tikzfigure}[LBA (50 runs); left to right: step size, tree depth, ESS (of some variables)]
+        \includegraphics[width=0.08\textwidth]{./figs/LBA/density_epsilon.pdf}
+        \includegraphics[width=0.08\textwidth]{./figs/LBA/density_tree_depth.pdf}
+        \raisebox{\height}{\scalebox{0.75}{
+            \begin{tabular}{llllll}
+                \multirow{2}{*}{Library} & \multirow{2}{*}{$N$} & \multicolumn{4}{c}{ESS} \\
+                & & $\tau$ & $A$ & $k$ & $\nu_1$ \\
+                \hline \\
+                Stan & 10 & 112.94 & 224.35 & 115.161 & 202.87 \\
+                AHMC & 10 & 373.606 & 332.105 & 307.505 & 385.342 \\
+                Stan & 50 & 140.416 & 178.909 & 138.096 & 184.436 \\
+                AHMC & 50 & 274.85 & 255.359 & 250.565 & 270.766 \\
+                Stan & 200 & 151.011 & 173.519 & 146.133 & 241.527 \\
+                AHMC & 200 & 273.304 & 269.158 & 257.299 & 289.361 \\
+            \end{tabular}
+        }}
+    \end{tikzfigure}
 }
 
 \column{0.32}
 \block{Performance}{
-    Put plots for performance.
+% Gaussian
+% │ Row │ sampler     │ Nd    │ time_mean │
+% │     │ String      │ Int64 │ Float64   │
+% ├─────┼─────────────┼───────┼───────────┤
+% │ 1   │ CmdStanNUTS │ 10    │ 0.811787  │
+% │ 2   │ AHMCNUTS    │ 10    │ 0.338339  │
+% │ 3   │ CmdStanNUTS │ 100   │ 0.774975  │
+% │ 4   │ AHMCNUTS    │ 100   │ 0.36424   │
+% │ 5   │ CmdStanNUTS │ 1000  │ 0.79924   │
+% │ 6   │ AHMCNUTS    │ 1000  │ 0.80259   │
+% SDT
+% │ Row │ sampler     │ Nd    │ time_mean │
+% │     │ String      │ Int64 │ Float64   │
+% ├─────┼─────────────┼───────┼───────────┤
+% │ 1   │ CmdStanNUTS │ 10    │ 0.775959  │
+% │ 2   │ AHMCNUTS    │ 10    │ 0.328538  │
+% │ 3   │ CmdStanNUTS │ 100   │ 0.726106  │
+% │ 4   │ AHMCNUTS    │ 100   │ 0.320111  │
+% │ 5   │ CmdStanNUTS │ 1000  │ 0.708934  │
+% │ 6   │ AHMCNUTS    │ 1000  │ 0.317854  │
+% LR
+% │ Row │ sampler     │ Nd    │ time_mean │
+% │     │ String      │ Int64 │ Float64   │
+% ├─────┼─────────────┼───────┼───────────┤
+% │ 1   │ CmdStanNUTS │ 10    │ 0.877141  │
+% │ 2   │ AHMCNUTS    │ 10    │ 2.70077   │
+% │ 3   │ CmdStanNUTS │ 100   │ 0.97563   │
+% │ 4   │ AHMCNUTS    │ 100   │ 5.06673   │
+% │ 5   │ CmdStanNUTS │ 1000  │ 2.31785   │
+% │ 6   │ AHMCNUTS    │ 1000  │ 33.1288   │
+% HPR
+% │ Row │ sampler     │ Nd    │ time_mean │
+% │     │ String      │ Int64 │ Float64   │
+% ├─────┼─────────────┼───────┼───────────┤
+% │ 1   │ CmdStanNUTS │ 1     │ 2.487     │
+% │ 2   │ AHMCNUTS    │ 1     │ 19.4587   │
+% │ 3   │ CmdStanNUTS │ 2     │ 3.50248   │
+% │ 4   │ AHMCNUTS    │ 2     │ 28.2982   │
+% │ 5   │ CmdStanNUTS │ 5     │ 5.89541   │
+% │ 6   │ AHMCNUTS    │ 5     │ 40.0322   │
+% LBA
+% │ Row │ sampler     │ Nd    │ time_mean │
+% │     │ String      │ Int64 │ Float64   │
+% ├─────┼─────────────┼───────┼───────────┤
+% │ 1   │ CmdStanNUTS │ 10    │ 2.57885   │
+% │ 2   │ AHMCNUTS    │ 10    │ 2.62737   │
+% │ 3   │ CmdStanNUTS │ 50    │ 12.2249   │
+% │ 4   │ AHMCNUTS    │ 50    │ 10.7825   │
+% │ 5   │ CmdStanNUTS │ 200   │ 41.3488   │
+% │ 6   │ AHMCNUTS    │ 200   │ 55.592    │
+\begin{tikztable}[Time comparisons between Stan and AdvancedHMC.jl for five models]
+Below are time used to simulate the Hamiltonian trajectories,
+measured in seconds.
+\begin{tabular}{l|ll|ll|ll|ll|ll}
+    \multirow{2}{*}{Library} & \multicolumn{10}{c}{Data Size \& Mean Time (s)} \\
+    & \multicolumn{2}{c}{Gaussian (50 runs)} & \multicolumn{2}{c}{SDT (100 runs)} & \multicolumn{2}{c}{LR (50 runs)} & \multicolumn{2}{c}{HPR (25 runs)} & \multicolumn{2}{c}{LBA (50 runs)} \\
+    % \hline \\
+    Stan & 10 & 0.803881 & 10 & 0.775959 & 10 & 0.866924 & 10 & 2.487 & 10 & 2.57885  \\
+    AHMC & 10 & 0.336073 & 10 & 0.328538 & 10 & 1.13563 & 10 & 19.4587 & 10 & 2.62737 \\
+    Stan & 100 & 0.756092 & 100 & 0.726106 & 100 & 0.982419 & 20 & 3.50248 & 50 & 12.2249 \\
+    AHMC & 100 & 0.33034 & 100 & 0.320111 & 100 & 1.32024 & 20 & 28.2982 & 50 & 10.7825 \\
+    Stan & 1000 & 0.761393 & 1000 & 0.708934 & 1000 & 2.26 & 50 & 5.89541 & 200 & 41.3488 \\
+    AHMC & 1000 & 0.508123 & 1000 & 0.317854 & 1000 & 3.83261 & 50 & 40.0322 & 200 & 55.592 \\
+\end{tabular}
+\end{tikztable}
 }
 
 \block{Remarks}{
-    CuArrays.jl
+    \paragraph{Turing.jl}, a probabilistic programming language in Julia, is used as the front-end to run AdvancedHMC.jl.
+    Below is an example of running NUTS on the LR model using Turing.
+    \lstinputlisting{lr.jl}
+    \paragraph{Bijectors.jl} is used inside Turing.jl to do automatic transformation of constrained variables in order to run HMC.
+    E.g. a random variable from $\mathcal{T}runcated(\mathcal{C}auchy(0, 5), 0, \infty)$ is constrained to be positive and will be transformed to the real space by the $\log$ function.
+    \paragraph{CuArrays.jl} could be used with AdvancedHMC.jl to run NUTS on GPUs.
+    In order to run NUTS using CUDA, one only needs to change Line 3 of the demo code from \texttt{q\_init = randn(D)} to \texttt{q\_init = CuArray(randn(D))}, assuming \texttt{logdensity\_f} and \texttt{grad\_f} in Line 6 are GPU friendly.
 
-    Bijectors.jl
+    
 }
 
 \block{Acknowledgements}{
     We would like to thank the developers of MCMCBenchmarks.jl, Rob Goedman and Christopher Fisher.
     With this package we run all the benchmarks and generate all the plots used in this poster.
+    % We would also like to thank Martin Trapp for useful discussions on efficient implementations of the benchmark models in Turing.jl.
 }
 
 \block{References}{
