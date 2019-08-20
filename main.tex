@@ -16,7 +16,7 @@
 \usepackage{adjustbox}
 \usepackage{enumitem}
 \usepackage{multirow}
-\usepackage[backend=biber,style=numeric]{biblatex}
+\usepackage[backend=biber,style=apa]{biblatex}
 \usepackage{emory-theme}
 \usepackage{inconsolata} % very nice fixed-width font included with texlive-full
 \usepackage{color} % more flexible names for syntax highlighting colors
@@ -92,7 +92,25 @@
 \column{0.32}
 
 \block{Abstract}{
-     The No-U-Turn Sampler (NUTS) in Stan has demonstrated remarkable sampling robustness and efficiency in a wide range of Bayesian inference problems, due to the use of self-adaptive Hamiltonian dynamic trajectory simulation length, together with a fine-tuned joint adaptation of step-size and mass matrix. Motivated by these successes, we present AdvancedHMC.jl: a pure Julia implementation of Stan’s built-in NUTS algorithm and related adaptation methods. We hope AdvancedHMC.jl can expose Stan’s NUTS sampling algorithm to a wider range of users, e.g. those who want to write their models by hand, or using a different probabilistic programming language (e.g. Turing, Soss). In our package, a NUTS sampler is defined as a combination of individual components with abstractions including the `Hamiltonian` dynamics, the `Metric` space, how the dynamics are numerically simulated by an Integrator to build up a `Trajectory`, and how a candidate point is sampled from it by a `TrajectorySampler`. This abstraction is partially inspired by “A Conceptual Introduction to Hamiltonian Monte Carlo” by Michael Betancourt.
+    The No-U-Turn Sampler (NUTS) in Stan has demonstrated remarkable sampling robustness and 
+    efficiency in a wide range of Bayesian inference problems, 
+    due to the use of self-adaptive Hamiltonian dynamic trajectory simulation length, 
+    together with a fine-tuned joint adaptation of step-size and mass matrix. 
+    Motivated by these successes, we present 
+    AdvancedHMC.jl: a pure Julia implementation of Stan’s built-in NUTS and 
+    related adaptation methods. 
+    We hope AdvancedHMC.jl can expose Stan’s NUTS to a wider range of users, 
+    e.g. those who want to write their models by hand, 
+    or using a different probabilistic programming language (e.g. Turing, Soss). 
+    In our package, NUTS is defined as a combination of individual components with 
+    abstractions 
+%  including the `Hamiltonian` dynamics, the `Metric` space, 
+%  how the dynamics are numerically simulated by an Integrator to build up a `Trajectory`, 
+%  and how a candidate point is sampled from it by a `TrajectorySampler`. 
+%  This abstraction is partially 
+    inspired by 
+    (\cite{betancourt2017conceptual}).
+    % A Conceptual Introduction to Hamiltonian Monte Carlo” by Michael Betancourt.
 }
 
 \block{Hamiltonian Monte Carlo Components}{
@@ -126,17 +144,50 @@
 
 \block{Models}{
     We use five models from MCMCBenchmarks.jl to compare 
-    the NUTS implementation between AdvancedHMC.jl and Stan.
-
+    NUTS between AdvancedHMC.jl and Stan.
     \paragraph{Gaussian Model (Gaussian)}
     is a simple two parameter Gaussian distribution.
+    $$
+    \mu \sim \mathcal{N}(0, 1), \quad 
+    \sigma \sim \mathcal{T}runcated(\mathcal{C}auchy(0, 5), 0, \infty), \quad
+    y_n \sim \mathcal{N}(\mu, \sigma) \; (n = 1, \dots, N)
+    $$
     \paragraph{Signal Detection Model (SDT)}
     is a simple model used in psychophysics and signal processing, 
     which decomposes performance in terms of discriminability and bias.
+    $$
+    d \sim \mathcal{N}(0, \frac{1}{\sqrt{2}}), \quad 
+    c \sim \mathcal{N}(0, \frac{1}{\sqrt{2}}), \quad 
+    x \sim \text{SDT}(d, c)
+    $$
     \paragraph{Linear Regression Model (LR)}
+    $$
+    B_d \sim \mathcal{N}(0, 10), \;
+    \sigma \sim \mathcal{T}runcated(\mathcal{C}auchy(0, 5), 0, \infty), \;
+    y_n \sim \mathcal{N}(\mu_n, \sigma),
+    $$
+    where $\mu = B_0 + B^T X, d = 1, \dots, D$ and $n = 1, \dots, N$.
     \paragraph{Hierarchical Poisson Regression (HPR)}
+    $$
+    a_0 \sim \mathcal{N}(0, 10), \;
+    a_1 \sim \mathcal{N}(0, 1), \;
+    b_\sigma \sim \mathcal{T}runcated(\mathcal{C}auchy(0, 1), 0, \infty), \;
+    b_d \sim \mathcal{N}(0, b_\sigma), \;
+    y_n \sim \mathcal{P}(\lambda_n),
+    $$
+    where $\lambda_n = \exp(a_0 + b_{z_n} + a_1 x_n), d = 1, \dots, N_b$ and $n = 1, \dots, N$.
     \paragraph{Linear Ballistic Accumulator (LBA)}
     is a cognitive model of perception and simple decision making.
+    $$
+    \tau \sim \mathcal{T}runcated(\mathcal{N}(0.4, 0.1), 0, mn), \quad
+    A \sim \mathcal{T}runcated(\mathcal{N}(0.8, 0.4), 0, \infty),
+    $$
+    $$
+    k \sim \mathcal{T}runcated(\mathcal{N}(0.2, 0.3), 0, \infty), \quad
+    \nu_d \sim \mathcal{N}(0, 3), \quad
+    x_i \sim \text{LBA}(\nu, \tau, A, k)
+    $$
+    where $mn=\min_i x_{i,2}, d = 1, \dots, N_c$ and $i = 1, \dots, N$.
 }
 
 \column{0.36}
