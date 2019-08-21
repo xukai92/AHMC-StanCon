@@ -19,6 +19,7 @@
 \usepackage[american]{babel}
 \usepackage{csquotes}
 \usepackage{booktabs}
+\usepackage{numprint}
 \usepackage[backend=biber,style=apa]{biblatex}
 \DeclareLanguageMapping{american}{american-apa}
 \usepackage{emory-theme}
@@ -98,10 +99,10 @@
 \usecolorstyle{EmoryStyle}
 
 \title{AdvancedHMC.jl: a modular implementation of Stan’s no-U-turn sampler in Julia}
-\author{Kai Xu\textsuperscript{1}, Hong Ge\textsuperscript{2}, Will Tebbutt\textsuperscript{2}, Mohamed Tarek\textsuperscript{3} and Martin Trapp\textsuperscript{4,5}}
+\author{Kai Xu\textsuperscript{1}, Hong Ge\textsuperscript{2}, Will Tebbutt\textsuperscript{2}, Mohamed Tarek\textsuperscript{3} and Martin Trapp\textsuperscript{4}}
 \institute{
-    \textsuperscript{1}University of Edinburgh \quad \textsuperscript{2}University of Cambridge \quad \textsuperscript{3}UNSW Canberra \quad \textsuperscript{4}Graz University of Technology \quad
-    \textsuperscript{5}Austrian Research Institute for AI 
+    \textsuperscript{1}University of Edinburgh \quad \textsuperscript{2}University of Cambridge \quad \textsuperscript{3}UNSW Canberra \quad \textsuperscript{4}Graz University of Technology %\quad
+%    \textsuperscript{5}Austrian Research Institute for AI 
 }
 \titlegraphic{\includegraphics[width=0.075\textwidth]{turing-logo}}
 
@@ -114,16 +115,16 @@
 \column{0.32}
 
 \block{Abstract}{
-    The No-U-Turn Sampler (NUTS) in Stan (\cite{hoffman2014no}) has demonstrated remarkable sampling robustness and 
+    The No-U-Turn Sampler (NUTS) in \texttt{Stan} (\cite{hoffman2014no,carpenter2017stan}) has demonstrated remarkable sampling robustness and 
     efficiency in a wide range of Bayesian inference problems, 
     due to the use of self-adaptive Hamiltonian dynamic trajectory simulation length, 
-    together with a fine-tuned joint adaptation of step-size and mass matrix. 
+    and a fine-tuned joint adaptation of step-size and mass matrix. 
     Motivated by these successes, we present 
-    AdvancedHMC.jl (AHMC), a pure Julia implementation of Stan’s built-in NUTS and 
+    \texttt{AdvancedHMC.jl} (AHMC), a pure Julia implementation of Stan’s built-in NUTS algorithm and 
     related adaptation methods. 
-    We hope AdvancedHMC.jl can expose Stan’s NUTS to a wider range of users, 
+    We hope \texttt{AdvancedHMC.jl} can help expose Stan’s NUTS to a wider range of users, 
     e.g. those who want to write their models by hand, 
-    or using a different probabilistic programming language (e.g. Turing, Soss). 
+    or using a different probabilistic programming language (e.g. \texttt{Turing}, \texttt{Soss}). 
     In our package, NUTS is defined as a combination of individual components with 
     abstractions 
 %  including the `Hamiltonian` dynamics, the `Metric` space, 
@@ -137,39 +138,39 @@
 
 \block{Hamiltonian Monte Carlo Components}{
     Hamiltonian Monte Carlo (HMC) simulates Hamitonian dynamics to make proposals for a Markov chain (\cite{neal2011mcmc}).
-    AdvancedHMC.jl supports the combination of various HMC samplers below.
+    \texttt{AdvancedHMC.jl} supports the combination of various HMC samplers below.
     $$
-    (StaticHMC \cup DynamicHMC) \times Adaptor.
+    (\texttt{StaticHMC} \cup \texttt{DynamicHMC}) \times \texttt{Adaptor}.
     $$
-    Here $StaticHMC$ are HMC with fixed-length trajectories and 
-    $DynamicHMC$ are HMC with dynamic trajectories 
+    Here $\texttt{StaticHMC}$ are HMC with fixed-length trajectories and 
+    $\texttt{DynamicHMC}$ are HMC with dynamic trajectories 
     which can be created by a combination of different NUTS components as follows
     $$
-    Metric \times Integrator \times TrajectorySampler \times TerminationCriterion,
+    \texttt{Metric} \times \texttt{Integrator} \times \texttt{TrajectorySampler} \times \texttt{TerminationCriterion},
     $$
     where 
     \begin{equation*}
         \begin{aligned} 
-            Metric &=  \{ UnitEuclidean, DiagEuclidean, DenseEuclidean \} \\ 
-            Integrator &=  \{ Leapfrog \} \\
-            TrajectorySampler &=  \{ Slice, Multinomial \} \\
-            TerminationCriterion &= \{ ClassicNoUTurn, GeneralisedNoUTurn \}
+            \texttt{Metric} &=  \{ \texttt{UnitEuclidean}, \texttt{DiagEuclidean}, \texttt{DenseEuclidean} \} \\ 
+            \texttt{Integrator} &=  \{ \texttt{Leapfrog} \} \\
+            \texttt{TrajectorySampler} &=  \{ \texttt{Slice}, \texttt{Multinomial} \} \\
+            \texttt{TerminationCriterion} &= \{ \texttt{ClassicNoUTurn}, \texttt{GeneralisedNoUTurn} \}
         \end{aligned}.
     \end{equation*}
-    $Adaptor$ contains any compositional adaptor composed from base adaptors
+    $\texttt{Adaptor}$ contains any compositional adaptor composed from base adaptors
     $$
-    BaseAdaptor \in \{Preconditioner, NesterovDualAveraging\}.
+    \texttt{BaseAdaptor} \in \{\texttt{Preconditioner}, \texttt{NesterovDualAveraging}\}.
     $$
 
-    \textbf{Note 1}: $Preconditioner$ behaves differently based on the choice of metric spaces.
+    \textbf{Note 1}: $\texttt{Preconditioner}$ behaves differently based on the choice of metric spaces.
 
-    \textbf{Note 2}: a specific composition of base adaptors called $StanHMCAdaptor$ is provided to construct Stan's windowed adaptor, 
+    \textbf{Note 2}: a specific composition of base adaptors called $\texttt{StanHMCAdaptor}$ is provided to construct Stan's windowed adaptor, 
     which is proved to be robust in practice.
 }
 
 \block{Benchmark Models}{
-    We use five models from MCMCBenchmarks.jl to compare 
-    NUTS between AdvancedHMC.jl and Stan. \\
+    We use five models from \texttt{MCMCBenchmarks.jl} to compare 
+    NUTS between \texttt{AdvancedHMC.jl} and \texttt{Stan}. \\
 
     \textbf{Gaussian Model (Gaussian)}
     is a simple two parameter Gaussian distribution.
@@ -223,11 +224,11 @@
 
 \column{0.36}
 
-\block{Example Code of Building Stan's NUTS}{
+\block{Example Code of Building Stan's NUTS using AHMC}{
     \lstinputlisting{example.jl}
 }
 
-\block{Sampling Efficiency: Stan v.s. AHMC}{
+\block{Sampling Efficiency: Stan's NUTS v.s. AHMC}{
     To compare the sampling efficiency between Stan and AHMC,
     we run multiple runs of NUTS with target acceptance rate $0.8$ 
     for $2,000$ runs with $1,000$ adaptation steps,
@@ -237,126 +238,150 @@
     \begin{tikzfigure}[Gaussian (50 runs); left to right: step size, tree depth, ESS]
         \includegraphics[width=0.08\textwidth]{./figs/Gaussian/density_epsilon.pdf}
         \includegraphics[width=0.08\textwidth]{./figs/Gaussian/density_tree_depth.pdf}
-        \;
+        \;\hfill
         \raisebox{\height}{\scalebox{0.75}{
-            \begin{tabular}{llll}
-                \multirow{2}{*}{Library} & \multirow{2}{*}{$N$} & \multicolumn{2}{c}{ESS} \\
-                & & $\mu$ & $\sigma$ \\
-                \hline \\
+            \begin{tabular}{lrrr}
+                \toprule
+                \multirow{2}{*}{} & \multirow{2}{*}{$N$} & \multicolumn{2}{c}{ESS} \\
+                & & \multicolumn{1}{c}{$\mu$} & \multicolumn{1}{c}{$\sigma$} \\
+                \midrule
                 Stan & 10 & 513.163 & 466.577 \\
                 AHMC & 10 & 503.535 & 447.722 \\
                 Stan & 100 & 786.531 & 782.231 \\
                 AHMC & 100 & 786.531 & 796.628 \\
-                Stan & 1000 & 864.01 & 876.66 \\
+                Stan & 1000 & 864.010 & 876.660 \\
                 AHMC & 1000 & 832.255 & 844.452 \\
+                \bottomrule
             \end{tabular}
-        }}
+        }}\hfill\;
     \end{tikzfigure}
-    \vspace{-2em}
+    \vspace{-1em}
     \begin{tikzfigure}[SDT (100 runs); left to right: step size, tree depth, ESS]
         \includegraphics[width=0.08\textwidth]{./figs/SDT/density_epsilon.pdf}
         \includegraphics[width=0.08\textwidth]{./figs/SDT/density_tree_depth.pdf}
-        \;
+        \;\hfill
         \raisebox{\height}{\scalebox{0.75}{
-            \begin{tabular}{llll}
-                \multirow{2}{*}{Library} & \multirow{2}{*}{$N$} & \multicolumn{2}{c}{ESS} \\
-                & & $d$ & $c$ \\
-                \hline \\
+            \begin{tabular}{lrrr}
+                \toprule
+                \multirow{2}{*}{} & \multirow{2}{*}{$N$} & \multicolumn{2}{c}{ESS} \\
+                & & \multicolumn{1}{c}{$d$} & \multicolumn{1}{c}{$c$} \\
+                \midrule
                 Stan & 10 & 710.762  & 703.327 \\
                 AHMC & 10 & 802.236 & 815.929 \\
                 Stan & 100 & 820.741 & 823.152 \\
                 AHMC & 100 & 814.308 & 846.357 \\
                 Stan & 1000 & 844.478 & 872.961 \\
                 AHMC & 1000 & 829.792 & 859.018 \\
+                \bottomrule
             \end{tabular}
-        }}
+        }}\hfill\;
     \end{tikzfigure}
     \vspace{-2em}
     \begin{tikzfigure}[LR (50 runs); left to right: step size, tree depth, ESS]
         \includegraphics[width=0.08\textwidth]{./figs/Linear_Regression/density_epsilon.pdf}
         \includegraphics[width=0.08\textwidth]{./figs/Linear_Regression/density_tree_depth.pdf}
-        \;
+        \;\hfill
         \raisebox{\height}{\scalebox{0.75}{
-            \begin{tabular}{llllll}
-                \multirow{2}{*}{Library} & \multirow{2}{*}{$N$} & \multicolumn{4}{c}{ESS} \\
-                & & $b_0$ & $\sigma$ & $b_1$ & $b_2$ \\
-                \hline \\
+            \begin{tabular}{lrrrrr}
+                \toprule
+                \multirow{2}{*}{} & \multirow{2}{*}{$N$} & \multicolumn{4}{c}{ESS} \\
+                & & \multicolumn{1}{c}{$b_0$} & \multicolumn{1}{c}{$\sigma$} & \multicolumn{1}{c}{$b_1$} & \multicolumn{1}{c}{$b_2$} \\
+                \midrule
                 Stan & 10 & 413.939 & 266.476 & 381.219 & 423.441 \\
-                AHMC & 10 & 354.946 & 263.894 & 411.769 & 399.42 \\
-                Stan & 100 & 621.796 & 729.812 & 465.99 & 608.608 \\
+                AHMC & 10 & 354.946 & 263.894 & 411.769 & 399.420 \\
+                Stan & 100 & 621.796 & 729.812 & 465.990 & 608.608 \\
                 AHMC & 100 & 473.005 & 734.189 & 606.996 & 621.543 \\
                 Stan & 1000 & 668.524 & 789.987 & 464.459 & 648.201 \\
                 AHMC & 1000 & 485.988 & 786.577 & 676.097 & 689.344 \\
+                \bottomrule
             \end{tabular}
-        }}
+        }}\hfill\;
     \end{tikzfigure}
     \vspace{-2em}
     \begin{tikzfigure}[HPR (25 runs); left to right: step size, tree depth, ESS (of some variables)]
         \includegraphics[width=0.08\textwidth]{./figs/Hierarchical_Poisson/density_epsilon.pdf}
         \includegraphics[width=0.08\textwidth]{./figs/Hierarchical_Poisson/density_tree_depth.pdf}
-        \;
+        \;\hfill
         \raisebox{\height}{\scalebox{0.75}{
-            \begin{tabular}{lllll}
-                \multirow{2}{*}{Library} & \multirow{2}{*}{$N$} & \multicolumn{3}{c}{ESS} \\
-                & & $a_0$ & $a_1$ & $b_\sigma$ \\
-                \hline \\
-                Stan & 10 & 221.485 & 215.013 & 266.9 \\
+            \begin{tabular}{lrrrr}
+                \toprule
+                \multirow{2}{*}{} & \multirow{2}{*}{$N$} & \multicolumn{3}{c}{ESS} \\
+                & & \multicolumn{1}{c}{$a_0$} & \multicolumn{1}{c}{$a_1$} & \multicolumn{1}{c}{$b_\sigma$} \\
+                \midrule
+                Stan & 10 & 221.485 & 215.013 & 266.900 \\
                 AHMC & 10 & 216.491 & 214.459 & 258.638 \\
-                Stan & 20 & 208.286 & 207.041 & 241.08 \\
+                Stan & 20 & 208.286 & 207.041 & 241.080 \\
                 AHMC & 20 & 206.458 & 200.469 & 236.546 \\
                 Stan & 50 & 172.484 & 172.982 & 216.586 \\
                 AHMC & 50 & 200.755 & 201.548 & 247.384 \\
+                \bottomrule
             \end{tabular}
-        }}
+        }}\hfill\;
     \end{tikzfigure}
     \vspace{-2em}
     \begin{tikzfigure}[LBA (50 runs); left to right: step size, tree depth, ESS (of some variables)]
         \includegraphics[width=0.08\textwidth]{./figs/LBA/density_epsilon.pdf}
         \includegraphics[width=0.08\textwidth]{./figs/LBA/density_tree_depth.pdf}
-        \;
+        \;\hfill
         \raisebox{\height}{\scalebox{0.75}{
-            \begin{tabular}{llllll}
-                \multirow{2}{*}{Library} & \multirow{2}{*}{$N$} & \multicolumn{4}{c}{ESS} \\
-                & & $\tau$ & $A$ & $\nu_1$ & $\nu_2$ \\
-                \hline \\
+            \begin{tabular}{lrrrrr}
+                \toprule
+                \multirow{2}{*}{} & \multirow{2}{*}{$N$} & \multicolumn{4}{c}{ESS} \\
+                & & \multicolumn{1}{c}{$\tau$} & \multicolumn{1}{c}{$A$} & \multicolumn{1}{c}{$\nu_1$} & \multicolumn{1}{c}{$\nu_2$} \\
+                \midrule
                 Stan & 10 & 226.463 & 282.656 & 305.614 & 276.557 \\
-                AHMC & 10 & 340.722 & 304.523 & 337.61 & 336.357 \\
+                AHMC & 10 & 340.722 & 304.523 & 337.610 & 336.357 \\
                 Stan & 50 & 212.838 & 238.003 & 235.009 & 232.667 \\
                 AHMC & 50 & 248.249 & 238.979 & 248.331 & 255.421 \\
                 Stan & 200 & 244.926 & 264.967 & 268.793 & 270.36 \\
                 AHMC & 200 & 256.638 & 263.098 & 270.978 & 266.769 \\
+                \bottomrule
             \end{tabular}
-        }}
+        }}\hfill\;
     \end{tikzfigure}
 }
 
+\npdecimalsign{.}
+%\nprounddigits{5}
+
 \column{0.32}
 \block{Computational Efficiency: Stan v.s. Turing}{
-    \textbf{Turing.jl} is a probabilistic programming language (PPL) in Julia that
-    uses AdvancedHMC.jl as its HMC backend.
-    All the benchmark models are written in Turing and AdvancedHMC.jl
-    is called by Turing.jl to run the NUTS.
-    Below is an example of running NUTS on the LR model using Turing.
+    \texttt{Turing.jl} is a probabilistic programming language (PPL) in Julia that
+    uses \texttt{AdvancedHMC.jl} as its HMC backend.
+    All the benchmark models are written in \texttt{Turing} and \texttt{AdvancedHMC.jl}
+    is called by \texttt{Turing.jl} to run the NUTS.
+    Below is an example of running NUTS on the LR model using \texttt{Turing}.
     \lstinputlisting{lr.jl}    
-    The time to run the five benchmark models in Stan and Turing
+    The time to run the five benchmark models in \texttt{Stan} and \texttt{Turing}
     are reported in the table below.
-    \begin{tikztable}[Time comparisons between Stan and AdvancedHMC.jl for five models]
-    \begin{tabular}{l|ll|ll|ll|ll|ll}
-        \multirow{2}{*}{Library} & \multicolumn{10}{c}{Data Size \& Mean Time (s)} \\
-        & \multicolumn{2}{c}{Gaussian (50 runs)} & \multicolumn{2}{c}{SDT (100 runs)} & \multicolumn{2}{c}{LR (50 runs)} & \multicolumn{2}{c}{HPR (25 runs)} & \multicolumn{2}{c}{LBA (50 runs)} \\
-        % \hline \\
-        Stan & 10 & 0.803881 & 10 & 0.775959 & 10 & 0.866924 & 10 & 2.487 & 10 & 1.91799 \\
-        AHMC & 10 & 0.336073 & 10 & 0.328538 & 10 & 1.13563 & 10 & 19.4587 & 10 & 2.69062 \\
-        Stan & 100 & 0.756092 & 100 & 0.726106 & 100 & 0.982419 & 20 & 3.50248 & 50 & 7.84705 \\
-        AHMC & 100 & 0.33034 & 100 & 0.320111 & 100 & 1.32024 & 20 & 28.2982 & 50 & 11.027 \\
-        Stan & 1000 & 0.761393 & 1000 & 0.708934 & 1000 & 2.26 & 50 & 5.89541 & 200 & 31.3762 \\
-        AHMC & 1000 & 0.508123 & 1000 & 0.317854 & 1000 & 3.83261 & 50 & 40.0322 & 200 & 33.6125 \\
+    \begin{tikztable}[Time comparisons between \texttt{Stan} and \texttt{Turing} (AHMC) for five models using $^1$ 25 runs, $^2$ 50 runs or $^3$ 100 runs.]
+    \scalebox{0.9}{
+    \begin{tabular}{lrrrrrrrrrr}
+        \toprule
+        %\multirow{2}{*}{} & \multicolumn{10}{c}{Data Size \& Mean Time (s)} \\
+        & \multicolumn{2}{c}{Gaussian $^2$} & \multicolumn{2}{c}{SDT $^3$} & \multicolumn{2}{c}{LR $^2$} & \multicolumn{2}{c}{HPR $^1$} & \multicolumn{2}{c}{LBA $^2$} \\
+        & \multicolumn{1}{c}{$N$} & \multicolumn{1}{c}{seconds} & \multicolumn{1}{c}{$N$} & \multicolumn{1}{c}{seconds} & \multicolumn{1}{c}{$N$} & \multicolumn{1}{c}{seconds}& \multicolumn{1}{c}{$N$} & \multicolumn{1}{c}{seconds}& \multicolumn{1}{c}{$N$} & \multicolumn{1}{c}{seconds} \\
+        \midrule
+        %Stan & 10 & 0.803881 & 10 & 0.775959 & 10 & 0.866924 & 10 & 2.487 & 10 & 1.91799 \\
+        Stan & 10 & 0.8039 & 10 & 0.7759 & 10 & 0.8669 & 10 & 2.4870 & 10 & 1.9179 \\
+        %Turing & 10 & 0.336073 & 10 & 0.328538 & 10 & 1.13563 & 10 & 19.4587 & 10 & 2.69062 \\
+        AHMC & 10 & 0.3361 & 10 & 0.3285 & 10 & 1.1356 & 10 & 19.4587 & 10 & 2.6906 \\
+        %Stan & 100 & 0.756092 & 100 & 0.726106 & 100 & 0.982419 & 20 & 3.50248 & 50 & 7.84705 \\
+        Stan & 100 & 0.7561 & 100 & 0.7261 & 100 & 0.9824 & 20 & 3.5025 & 50 & 7.8471 \\
+        %Turing & 100 & 0.33034 & 100 & 0.320111 & 100 & 1.32024 & 20 & 28.2982 & 50 & 11.027 \\
+        AHMC & 100 & 0.3303 & 100 & 0.3201 & 100 & 1.3202 & 20 & 28.2982 & 50 & 11.0270 \\
+        %Stan & 1000 & 0.761393 & 1000 & 0.708934 & 1000 & 2.26 & 50 & 5.89541 & 200 & 31.3762 \\
+        Stan & 1000 & 0.7614 & 1000 & 0.7089 & 1000 & 2.2600 & 50 & 5.8954 & 200 & 31.3762 \\
+        %Turing & 1000 & 0.508123 & 1000 & 0.317854 & 1000 & 3.83261 & 50 & 40.0322 & 200 & 33.6125 \\
+        AHMC & 1000 & 0.5081 & 1000 & 0.3179 & 1000 & 3.8326 & 50 & 40.0322 & 200 & 33.6125 \\
+        \bottomrule
     \end{tabular}
+    }
     \end{tikztable}
 }
 
 \block{Easy Integration of Other Julia Packages}{
-    \textbf{Bijectors.jl} is used inside Turing.jl to do automatic transformation of constrained variables in order to run HMC.
+    \textbf{Bijectors.jl} is used inside Turing.jl to do automatic transformations of constrained variables to run HMC.
     E.g. a random variable from $\mathcal{T}runcated(\mathcal{C}auchy(0, 5), 0, \infty)$ is constrained to be positive and 
     will be transformed to the real space by the $\log$ function automatically. \\
     
@@ -372,8 +397,8 @@
     That is to say, if the initial parameter is on GPU, i.e. a \texttt{CuArray},
     all the internal arrays in AdvancedHMC.jl will be on GPU, so does the NUTS. \\
 
-    \textbf{SoSS.jl} is another probabilistic programming language in Julia that
-    supports AdvancedHMC.jl as its backend.
+    \textbf{SoSS.jl} is another PPL in Julia that
+    uses AdvancedHMC.jl as its backend.
     It is easy for PPLs in Julia with different domain specific languages (DSLs)
     to use the HMC implementation in AdvancedHMC.jl. \\
 
@@ -397,7 +422,7 @@
 
 \block{References}{
     \vspace{-1em}
-    \printbibliography[heading=none]
+    {\footnotesize \printbibliography[heading=none]}
 }
     
 \end{columns}
