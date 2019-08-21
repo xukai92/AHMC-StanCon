@@ -5,6 +5,5 @@
     mu = B0 .+ x * B
     y ~ MvNormal(mu, sigma)
 end
-
 x, y, Nd, Nc = ... # load data
 chain = sample(LR(x, y, Nd, Nc), NUTS(2_000, 1_000, 0.8))

@@ -118,7 +118,7 @@
     due to the use of self-adaptive Hamiltonian dynamic trajectory simulation length, 
     together with a fine-tuned joint adaptation of step-size and mass matrix. 
     Motivated by these successes, we present 
-    AdvancedHMC.jl: a pure Julia implementation of Stan’s built-in NUTS and 
+    AdvancedHMC.jl (AHMC), a pure Julia implementation of Stan’s built-in NUTS and 
     related adaptation methods. 
     We hope AdvancedHMC.jl can expose Stan’s NUTS to a wider range of users, 
     e.g. those who want to write their models by hand, 
@@ -135,12 +135,14 @@
 }
 
 \block{Hamiltonian Monte Carlo Components}{
-    Hamiltonian Monte Carlo (HMC) simulates Hamitonian dynamics to propose samples for a Markov chain (\cite{neal2011mcmc}).
+    Hamiltonian Monte Carlo (HMC) simulates Hamitonian dynamics to make proposals for a Markov chain (\cite{neal2011mcmc}).
     AdvancedHMC.jl supports the combination of various HMC samplers below.
     $$
-    (\{FixedStepSizeHMC, FixedLengthHMC\} \cup DynamicHMC) \circ Adaptor.
+    (StaticHMC \cup DynamicHMC) \times Adaptor.
     $$
-    Here $DynamicHMC$ are a combination of different NUTS components
+    Here $StaticHMC$ are HMC with fixed-length trajectories and 
+    $DynamicHMC$ are HMC with dynamic trajectories 
+    which can be created by a combination of different NUTS components as follows
     $$
     Metric \times Integrator \times TrajectorySampler \times TerminationCriterion,
     $$
@@ -151,30 +153,32 @@
             Integrator &=  \{ Leapfrog \} \\
             TrajectorySampler &=  \{ Slice, Multinomial \} \\
             TerminationCriterion &= \{ ClassicNoUTurn, GeneralisedNoUTurn \}
-        \end{aligned}
+        \end{aligned}.
     \end{equation*}
-    and $Adaptor$ is a compositional adaptor composed from base adaptors
+    $Adaptor$ contains any compositional adaptor composed from base adaptors
     $$
     BaseAdaptor \in \{Preconditioner, NesterovDualAveraging\}.
     $$
 
-    \textbf{Note 1}: $Preconditioner$ behaves corresponding to the choice of metric spaces.
+    \textbf{Note 1}: $Preconditioner$ behaves differently based on the choice of metric spaces.
 
-    \textbf{Note 2}: a specific composition called $StanHMCAdaptor$ is provided to construct Stan's windowed adaptor, 
+    \textbf{Note 2}: a specific composition of base adaptors called $StanHMCAdaptor$ is provided to construct Stan's windowed adaptor, 
     which is proved to be robust in practice.
 }
 
 \block{Benchmark Models}{
     We use five models from MCMCBenchmarks.jl to compare 
-    NUTS between AdvancedHMC.jl and Stan.
-    \paragraph{Gaussian Model (Gaussian)}
+    NUTS between AdvancedHMC.jl and Stan. \\
+
+    \textbf{Gaussian Model (Gaussian)}
     is a simple two parameter Gaussian distribution.
     $$
     \mu \sim \mathcal{N}(0, 1), \quad 
     \sigma \sim \mathcal{T}runcated(\mathcal{C}auchy(0, 5), 0, \infty), \quad
     y_n \sim \mathcal{N}(\mu, \sigma) \; (n = 1, \dots, N)
     $$
-    \paragraph{Signal Detection Model (SDT)}
+    
+    \textbf{Signal Detection Model (SDT)}
     is a model used in psychophysics and signal processing, 
     which decomposes performance in terms of discriminability and bias.
     $$
@@ -182,24 +186,27 @@
     c \sim \mathcal{N}(0, \frac{1}{\sqrt{2}}), \quad 
     x \sim \text{SDT}(d, c)
     $$
-    \paragraph{Linear Regression Model (LR)}
+    
+    \textbf{Linear Regression Model (LR)}
     is a linear regression with truncated Cauchy prior on the weights.
     $$
     B_d \sim \mathcal{N}(0, 10), \;
     \sigma \sim \mathcal{T}runcated(\mathcal{C}auchy(0, 5), 0, \infty), \;
     y_n \sim \mathcal{N}(\mu_n, \sigma),
     $$
-    where $\mu = B_0 + B^T X, d = 1, \dots, D$ and $n = 1, \dots, N$.
-    \paragraph{Hierarchical Poisson Regression (HPR)}
+    where $\mu = B_0 + B^T X, d = 1, \dots, D$ and $n = 1, \dots, N$. \\
+    
+    \textbf{Hierarchical Poisson Regression (HPR)}
     $$
     a_0 \sim \mathcal{N}(0, 10), \;
     a_1 \sim \mathcal{N}(0, 1), \;
     b_\sigma \sim \mathcal{T}runcated(\mathcal{C}auchy(0, 1), 0, \infty), \;
     b_d \sim \mathcal{N}(0, b_\sigma), \;
-    y_n \sim \mathcal{P}(\lambda_n),
+    y_n \sim \mathcal{P}oi(\log\lambda_n),
     $$
-    where $\lambda_n = \exp(a_0 + b_{z_n} + a_1 x_n), d = 1, \dots, N_b$ and $n = 1, \dots, N$.
-    \paragraph{Linear Ballistic Accumulator (LBA)}
+    where $\log\lambda_n = a_0 + b_{z_n} + a_1 x_n, d = 1, \dots, N_b$ and $n = 1, \dots, N$. \\
+    
+    \textbf{Linear Ballistic Accumulator (LBA)}
     is a cognitive model of perception and simple decision making.
     $$
     \tau \sim \mathcal{T}runcated(\mathcal{N}(0.4, 0.1), 0, mn), \quad
@@ -219,8 +226,8 @@
     \lstinputlisting{example.jl}
 }
 
-\block{Hamiltonian Trajectory}{
-    To compare the Hamiltonian trajectories between AHMC and Stan,
+\block{Sampling Efficiency: Stan v.s. AHMC}{
+    To compare the sampling efficiency between Stan and AHMC,
     we run multiple runs of NUTS with target acceptance rate $0.8$ 
     for $2,000$ runs with $1,000$ adaptation steps,
     where the warm-up samples dropped off.
@@ -229,6 +236,7 @@
     \begin{tikzfigure}[Gaussian (50 runs); left to right: step size, tree depth, ESS]
         \includegraphics[width=0.08\textwidth]{./figs/Gaussian/density_epsilon.pdf}
         \includegraphics[width=0.08\textwidth]{./figs/Gaussian/density_tree_depth.pdf}
+        \;
         \raisebox{\height}{\scalebox{0.75}{
             \begin{tabular}{llll}
                 \multirow{2}{*}{Library} & \multirow{2}{*}{$N$} & \multicolumn{2}{c}{ESS} \\
@@ -247,6 +255,7 @@
     \begin{tikzfigure}[SDT (100 runs); left to right: step size, tree depth, ESS]
         \includegraphics[width=0.08\textwidth]{./figs/SDT/density_epsilon.pdf}
         \includegraphics[width=0.08\textwidth]{./figs/SDT/density_tree_depth.pdf}
+        \;
         \raisebox{\height}{\scalebox{0.75}{
             \begin{tabular}{llll}
                 \multirow{2}{*}{Library} & \multirow{2}{*}{$N$} & \multicolumn{2}{c}{ESS} \\
@@ -265,6 +274,7 @@
     \begin{tikzfigure}[LR (50 runs); left to right: step size, tree depth, ESS]
         \includegraphics[width=0.08\textwidth]{./figs/Linear_Regression/density_epsilon.pdf}
         \includegraphics[width=0.08\textwidth]{./figs/Linear_Regression/density_tree_depth.pdf}
+        \;
         \raisebox{\height}{\scalebox{0.75}{
             \begin{tabular}{llllll}
                 \multirow{2}{*}{Library} & \multirow{2}{*}{$N$} & \multicolumn{4}{c}{ESS} \\
@@ -283,6 +293,7 @@
     \begin{tikzfigure}[HPR (25 runs); left to right: step size, tree depth, ESS (of some variables)]
         \includegraphics[width=0.08\textwidth]{./figs/Hierarchical_Poisson/density_epsilon.pdf}
         \includegraphics[width=0.08\textwidth]{./figs/Hierarchical_Poisson/density_tree_depth.pdf}
+        \;
         \raisebox{\height}{\scalebox{0.75}{
             \begin{tabular}{lllll}
                 \multirow{2}{*}{Library} & \multirow{2}{*}{$N$} & \multicolumn{3}{c}{ESS} \\
@@ -301,6 +312,7 @@
     \begin{tikzfigure}[LBA (50 runs); left to right: step size, tree depth, ESS (of some variables)]
         \includegraphics[width=0.08\textwidth]{./figs/LBA/density_epsilon.pdf}
         \includegraphics[width=0.08\textwidth]{./figs/LBA/density_tree_depth.pdf}
+        \;
         \raisebox{\height}{\scalebox{0.75}{
             \begin{tabular}{llllll}
                 \multirow{2}{*}{Library} & \multirow{2}{*}{$N$} & \multicolumn{4}{c}{ESS} \\
@@ -318,45 +330,62 @@
 }
 
 \column{0.32}
-\block{Performance}{
-\begin{tikztable}[Time comparisons between Stan and AdvancedHMC.jl for five models]
-Below are time used to simulate the Hamiltonian trajectories,
-measured in seconds.
-\begin{tabular}{l|ll|ll|ll|ll|ll}
-    \multirow{2}{*}{Library} & \multicolumn{10}{c}{Data Size \& Mean Time (s)} \\
-    & \multicolumn{2}{c}{Gaussian (50 runs)} & \multicolumn{2}{c}{SDT (100 runs)} & \multicolumn{2}{c}{LR (50 runs)} & \multicolumn{2}{c}{HPR (25 runs)} & \multicolumn{2}{c}{LBA (50 runs)} \\
-    % \hline \\
-    Stan & 10 & 0.803881 & 10 & 0.775959 & 10 & 0.866924 & 10 & 2.487 & 10 & 1.91799 \\
-    AHMC & 10 & 0.336073 & 10 & 0.328538 & 10 & 1.13563 & 10 & 19.4587 & 10 & 2.69062 \\
-    Stan & 100 & 0.756092 & 100 & 0.726106 & 100 & 0.982419 & 20 & 3.50248 & 50 & 7.84705 \\
-    AHMC & 100 & 0.33034 & 100 & 0.320111 & 100 & 1.32024 & 20 & 28.2982 & 50 & 11.027 \\
-    Stan & 1000 & 0.761393 & 1000 & 0.708934 & 1000 & 2.26 & 50 & 5.89541 & 200 & 31.3762 \\
-    AHMC & 1000 & 0.508123 & 1000 & 0.317854 & 1000 & 3.83261 & 50 & 40.0322 & 200 & 33.6125 \\
-\end{tabular}
-\end{tikztable}
+\block{Computational Efficiency: Stan v.s. Turing}{
+    \textbf{Turing.jl} is a probabilistic programming language (PPL) in Julia that
+    uses AdvancedHMC.jl as its HMC backend.
+    All the benchmark models are written in Turing and AdvancedHMC.jl
+    is called by Turing.jl to run the NUTS.
+    Below is an example of running NUTS on the LR model using Turing.
+    \lstinputlisting{lr.jl}    
+    The time to run the five benchmark models in Stan and Turing
+    are reported in the table below.
+    \begin{tikztable}[Time comparisons between Stan and AdvancedHMC.jl for five models]
+    \begin{tabular}{l|ll|ll|ll|ll|ll}
+        \multirow{2}{*}{Library} & \multicolumn{10}{c}{Data Size \& Mean Time (s)} \\
+        & \multicolumn{2}{c}{Gaussian (50 runs)} & \multicolumn{2}{c}{SDT (100 runs)} & \multicolumn{2}{c}{LR (50 runs)} & \multicolumn{2}{c}{HPR (25 runs)} & \multicolumn{2}{c}{LBA (50 runs)} \\
+        % \hline \\
+        Stan & 10 & 0.803881 & 10 & 0.775959 & 10 & 0.866924 & 10 & 2.487 & 10 & 1.91799 \\
+        AHMC & 10 & 0.336073 & 10 & 0.328538 & 10 & 1.13563 & 10 & 19.4587 & 10 & 2.69062 \\
+        Stan & 100 & 0.756092 & 100 & 0.726106 & 100 & 0.982419 & 20 & 3.50248 & 50 & 7.84705 \\
+        AHMC & 100 & 0.33034 & 100 & 0.320111 & 100 & 1.32024 & 20 & 28.2982 & 50 & 11.027 \\
+        Stan & 1000 & 0.761393 & 1000 & 0.708934 & 1000 & 2.26 & 50 & 5.89541 & 200 & 31.3762 \\
+        AHMC & 1000 & 0.508123 & 1000 & 0.317854 & 1000 & 3.83261 & 50 & 40.0322 & 200 & 33.6125 \\
+    \end{tabular}
+    \end{tikztable}
 }
 
-\block{Remarks}{
-    \paragraph{Turing.jl}, a probabilistic programming language in Julia, is used as the front-end to run AdvancedHMC.jl.
-    Below is an example of running NUTS on the LR model using Turing.
-    \lstinputlisting{lr.jl}
-    
-    \paragraph{Bijectors.jl} is used inside Turing.jl to do automatic transformation of constrained variables in order to run HMC.
+\block{Easy Integration of Other Julia Packages}{
+    \textbf{Bijectors.jl} is used inside Turing.jl to do automatic transformation of constrained variables in order to run HMC.
     E.g. a random variable from $\mathcal{T}runcated(\mathcal{C}auchy(0, 5), 0, \infty)$ is constrained to be positive and 
-    will be transformed to the real space by the $\log$ function automatically.
+    will be transformed to the real space by the $\log$ function automatically. \\
     
-    \paragraph{CuArrays.jl} could be used with AdvancedHMC.jl to run NUTS on GPUs.
+    \textbf{CuArrays.jl} could be used with AdvancedHMC.jl to run NUTS on GPUs.
     In order to run NUTS using CUDA, 
     one only needs to change Line 3 of the demo code 
     from \texttt{q\_init = randn(D)} to \texttt{q\_init = CuArray(randn(D))}, 
-    assuming \texttt{logdensity\_f} and \texttt{grad\_f} in Line 6 are GPU friendly 
-    (if they are pure Julia code, they probably are).
-    
+    assuming \texttt{logdensity\_f} and \texttt{grad\_f} in Line 6 are GPU friendly;
+    if they are written in pure Julia, they probably supports GPUs automatically. \\
     \textit{How does it work?}
     All arrays in AdvancedHMC.jl are typed as \texttt{AbstractArray} and
-    the concrete type will be inferred based on the initial parameter.
-    That is to say, if the initial parameter is on GPU, i.e. it's a \texttt{CuArray},
-    all the internal arrays in AdvancedHMC.jl will be on GPU so does the NUTS.
+    the concrete type will be inferred from the initial parameter \texttt{q\_init}.
+    That is to say, if the initial parameter is on GPU, i.e. a \texttt{CuArray},
+    all the internal arrays in AdvancedHMC.jl will be on GPU, so does the NUTS. \\
+
+    \textbf{SoSS.jl} is another probabilistic programming language in Julia that
+    supports AdvancedHMC.jl as its backend.
+    It is easy for PPLs in Julia with different domain specific languages (DSLs)
+    to use the HMC implementation in AdvancedHMC.jl. \\
+
+    \textbf{DifferentialEquations.jl} is a suite for numerically solving differential equations in Julia 
+    with efficient implementations of solvers for various differential equations.
+    The solvers can be directly used in the Turing model and 
+    perform Bayesian inference on parameters of differential equations. \\
+
+    \textbf{Flux.jl} is a deep learning packages in Julia.
+    Neural models defined by Flux.jl can be directly used in Turing models.
+    E.g. one can implement a Bayesian neural network in Turing by 
+    defining priors on the weights of a Flux-based neural network, and 
+    NUTS can be used to draw samples of the weights.
 }
 
 \block{Acknowledgements}{
