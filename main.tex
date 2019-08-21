@@ -175,7 +175,7 @@
     y_n \sim \mathcal{N}(\mu, \sigma) \; (n = 1, \dots, N)
     $$
     \paragraph{Signal Detection Model (SDT)}
-    is a simple model used in psychophysics and signal processing, 
+    is a model used in psychophysics and signal processing, 
     which decomposes performance in terms of discriminability and bias.
     $$
     d \sim \mathcal{N}(0, \frac{1}{\sqrt{2}}), \quad 
@@ -183,6 +183,7 @@
     x \sim \text{SDT}(d, c)
     $$
     \paragraph{Linear Regression Model (LR)}
+    is a linear regression with truncated Cauchy prior on the weights.
     $$
     B_d \sim \mathcal{N}(0, 10), \;
     \sigma \sim \mathcal{T}runcated(\mathcal{C}auchy(0, 5), 0, \infty), \;
@@ -206,7 +207,7 @@
     $$
     $$
     k \sim \mathcal{T}runcated(\mathcal{N}(0.2, 0.3), 0, \infty), \quad
-    \nu_d \sim \mathcal{N}(0, 3), \quad
+    \nu_d \sim \mathcal{T}runcated(\mathcal{N}(0, 3), 0, \infty), \quad
     x_n \sim \text{LBA}(\nu, \tau, A, k)
     $$
     where $mn=\min_i x_{i,2}, d = 1, \dots, N_c$ and $n = 1, \dots, N$.
@@ -303,14 +304,14 @@
         \raisebox{\height}{\scalebox{0.75}{
             \begin{tabular}{llllll}
                 \multirow{2}{*}{Library} & \multirow{2}{*}{$N$} & \multicolumn{4}{c}{ESS} \\
-                & & $\tau$ & $A$ & $k$ & $\nu_1$ \\
+                & & $\tau$ & $A$ & $\nu_1$ & $\nu_2$ \\
                 \hline \\
-                Stan & 10 & 112.94 & 224.35 & 115.161 & 202.87 \\
-                AHMC & 10 & 373.606 & 332.105 & 307.505 & 385.342 \\
-                Stan & 50 & 140.416 & 178.909 & 138.096 & 184.436 \\
-                AHMC & 50 & 274.85 & 255.359 & 250.565 & 270.766 \\
-                Stan & 200 & 151.011 & 173.519 & 146.133 & 241.527 \\
-                AHMC & 200 & 273.304 & 269.158 & 257.299 & 289.361 \\
+                Stan & 10 & 226.463 & 282.656 & 305.614 & 276.557 \\
+                AHMC & 10 & 340.722 & 304.523 & 337.61 & 336.357 \\
+                Stan & 50 & 212.838 & 238.003 & 235.009 & 232.667 \\
+                AHMC & 50 & 248.249 & 238.979 & 248.331 & 255.421 \\
+                Stan & 200 & 244.926 & 264.967 & 268.793 & 270.36 \\
+                AHMC & 200 & 256.638 & 263.098 & 270.978 & 266.769 \\
             \end{tabular}
         }}
     \end{tikzfigure}
@@ -318,56 +319,6 @@
 
 \column{0.32}
 \block{Performance}{
-% Gaussian
-% │ Row │ sampler     │ Nd    │ time_mean │
-% │     │ String      │ Int64 │ Float64   │
-% ├─────┼─────────────┼───────┼───────────┤
-% │ 1   │ CmdStanNUTS │ 10    │ 0.811787  │
-% │ 2   │ AHMCNUTS    │ 10    │ 0.338339  │
-% │ 3   │ CmdStanNUTS │ 100   │ 0.774975  │
-% │ 4   │ AHMCNUTS    │ 100   │ 0.36424   │
-% │ 5   │ CmdStanNUTS │ 1000  │ 0.79924   │
-% │ 6   │ AHMCNUTS    │ 1000  │ 0.80259   │
-% SDT
-% │ Row │ sampler     │ Nd    │ time_mean │
-% │     │ String      │ Int64 │ Float64   │
-% ├─────┼─────────────┼───────┼───────────┤
-% │ 1   │ CmdStanNUTS │ 10    │ 0.775959  │
-% │ 2   │ AHMCNUTS    │ 10    │ 0.328538  │
-% │ 3   │ CmdStanNUTS │ 100   │ 0.726106  │
-% │ 4   │ AHMCNUTS    │ 100   │ 0.320111  │
-% │ 5   │ CmdStanNUTS │ 1000  │ 0.708934  │
-% │ 6   │ AHMCNUTS    │ 1000  │ 0.317854  │
-% LR
-% │ Row │ sampler     │ Nd    │ time_mean │
-% │     │ String      │ Int64 │ Float64   │
-% ├─────┼─────────────┼───────┼───────────┤
-% │ 1   │ CmdStanNUTS │ 10    │ 0.877141  │
-% │ 2   │ AHMCNUTS    │ 10    │ 2.70077   │
-% │ 3   │ CmdStanNUTS │ 100   │ 0.97563   │
-% │ 4   │ AHMCNUTS    │ 100   │ 5.06673   │
-% │ 5   │ CmdStanNUTS │ 1000  │ 2.31785   │
-% │ 6   │ AHMCNUTS    │ 1000  │ 33.1288   │
-% HPR
-% │ Row │ sampler     │ Nd    │ time_mean │
-% │     │ String      │ Int64 │ Float64   │
-% ├─────┼─────────────┼───────┼───────────┤
-% │ 1   │ CmdStanNUTS │ 1     │ 2.487     │
-% │ 2   │ AHMCNUTS    │ 1     │ 19.4587   │
-% │ 3   │ CmdStanNUTS │ 2     │ 3.50248   │
-% │ 4   │ AHMCNUTS    │ 2     │ 28.2982   │
-% │ 5   │ CmdStanNUTS │ 5     │ 5.89541   │
-% │ 6   │ AHMCNUTS    │ 5     │ 40.0322   │
-% LBA
-% │ Row │ sampler     │ Nd    │ time_mean │
-% │     │ String      │ Int64 │ Float64   │
-% ├─────┼─────────────┼───────┼───────────┤
-% │ 1   │ CmdStanNUTS │ 10    │ 2.57885   │
-% │ 2   │ AHMCNUTS    │ 10    │ 2.62737   │
-% │ 3   │ CmdStanNUTS │ 50    │ 12.2249   │
-% │ 4   │ AHMCNUTS    │ 50    │ 10.7825   │
-% │ 5   │ CmdStanNUTS │ 200   │ 41.3488   │
-% │ 6   │ AHMCNUTS    │ 200   │ 55.592    │
 \begin{tikztable}[Time comparisons between Stan and AdvancedHMC.jl for five models]
 Below are time used to simulate the Hamiltonian trajectories,
 measured in seconds.
@@ -375,12 +326,12 @@ measured in seconds.
     \multirow{2}{*}{Library} & \multicolumn{10}{c}{Data Size \& Mean Time (s)} \\
     & \multicolumn{2}{c}{Gaussian (50 runs)} & \multicolumn{2}{c}{SDT (100 runs)} & \multicolumn{2}{c}{LR (50 runs)} & \multicolumn{2}{c}{HPR (25 runs)} & \multicolumn{2}{c}{LBA (50 runs)} \\
     % \hline \\
-    Stan & 10 & 0.803881 & 10 & 0.775959 & 10 & 0.866924 & 10 & 2.487 & 10 & 2.57885  \\
-    AHMC & 10 & 0.336073 & 10 & 0.328538 & 10 & 1.13563 & 10 & 19.4587 & 10 & 2.62737 \\
-    Stan & 100 & 0.756092 & 100 & 0.726106 & 100 & 0.982419 & 20 & 3.50248 & 50 & 12.2249 \\
-    AHMC & 100 & 0.33034 & 100 & 0.320111 & 100 & 1.32024 & 20 & 28.2982 & 50 & 10.7825 \\
-    Stan & 1000 & 0.761393 & 1000 & 0.708934 & 1000 & 2.26 & 50 & 5.89541 & 200 & 41.3488 \\
-    AHMC & 1000 & 0.508123 & 1000 & 0.317854 & 1000 & 3.83261 & 50 & 40.0322 & 200 & 55.592 \\
+    Stan & 10 & 0.803881 & 10 & 0.775959 & 10 & 0.866924 & 10 & 2.487 & 10 & 1.91799 \\
+    AHMC & 10 & 0.336073 & 10 & 0.328538 & 10 & 1.13563 & 10 & 19.4587 & 10 & 2.69062 \\
+    Stan & 100 & 0.756092 & 100 & 0.726106 & 100 & 0.982419 & 20 & 3.50248 & 50 & 7.84705 \\
+    AHMC & 100 & 0.33034 & 100 & 0.320111 & 100 & 1.32024 & 20 & 28.2982 & 50 & 11.027 \\
+    Stan & 1000 & 0.761393 & 1000 & 0.708934 & 1000 & 2.26 & 50 & 5.89541 & 200 & 31.3762 \\
+    AHMC & 1000 & 0.508123 & 1000 & 0.317854 & 1000 & 3.83261 & 50 & 40.0322 & 200 & 33.6125 \\
 \end{tabular}
 \end{tikztable}
 }
@@ -389,12 +340,23 @@ measured in seconds.
     \paragraph{Turing.jl}, a probabilistic programming language in Julia, is used as the front-end to run AdvancedHMC.jl.
     Below is an example of running NUTS on the LR model using Turing.
     \lstinputlisting{lr.jl}
-    \paragraph{Bijectors.jl} is used inside Turing.jl to do automatic transformation of constrained variables in order to run HMC.
-    E.g. a random variable from $\mathcal{T}runcated(\mathcal{C}auchy(0, 5), 0, \infty)$ is constrained to be positive and will be transformed to the real space by the $\log$ function.
-    \paragraph{CuArrays.jl} could be used with AdvancedHMC.jl to run NUTS on GPUs.
-    In order to run NUTS using CUDA, one only needs to change Line 3 of the demo code from \texttt{q\_init = randn(D)} to \texttt{q\_init = CuArray(randn(D))}, assuming \texttt{logdensity\_f} and \texttt{grad\_f} in Line 6 are GPU friendly.
-
     
+    \paragraph{Bijectors.jl} is used inside Turing.jl to do automatic transformation of constrained variables in order to run HMC.
+    E.g. a random variable from $\mathcal{T}runcated(\mathcal{C}auchy(0, 5), 0, \infty)$ is constrained to be positive and 
+    will be transformed to the real space by the $\log$ function automatically.
+    
+    \paragraph{CuArrays.jl} could be used with AdvancedHMC.jl to run NUTS on GPUs.
+    In order to run NUTS using CUDA, 
+    one only needs to change Line 3 of the demo code 
+    from \texttt{q\_init = randn(D)} to \texttt{q\_init = CuArray(randn(D))}, 
+    assuming \texttt{logdensity\_f} and \texttt{grad\_f} in Line 6 are GPU friendly 
+    (if they are pure Julia code, they probably are).
+    
+    \textit{How does it work?}
+    All arrays in AdvancedHMC.jl are typed as \texttt{AbstractArray} and
+    the concrete type will be inferred based on the initial parameter.
+    That is to say, if the initial parameter is on GPU, i.e. it's a \texttt{CuArray},
+    all the internal arrays in AdvancedHMC.jl will be on GPU so does the NUTS.
 }
 
 \block{Acknowledgements}{
