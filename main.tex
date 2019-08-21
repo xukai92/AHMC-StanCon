@@ -99,9 +99,9 @@
 \usecolorstyle{EmoryStyle}
 
 \title{AdvancedHMC.jl: a modular implementation of Stan’s no-U-turn sampler in Julia}
-\author{Kai Xu\textsuperscript{1}, Hong Ge\textsuperscript{2}, Will Tebbutt\textsuperscript{2}, Mohamed Tarek\textsuperscript{3} and Martin Trapp\textsuperscript{4}}
+\author{Kai Xu\textsuperscript{1}, Hong Ge\textsuperscript{2}, Will Tebbutt\textsuperscript{2}, Mohamed Tarek\textsuperscript{3}, Martin Trapp\textsuperscript{4} and Zoubin Ghahramani\textsuperscript{2,5}}
 \institute{
-    \textsuperscript{1}University of Edinburgh \quad \textsuperscript{2}University of Cambridge \quad \textsuperscript{3}UNSW Canberra \quad \textsuperscript{4}Graz University of Technology %\quad
+    \textsuperscript{1}University of Edinburgh \quad \textsuperscript{2}University of Cambridge \quad \textsuperscript{3}UNSW Canberra \quad \textsuperscript{4}Graz University of Technology \quad \textsuperscript{5}Uber AI Labs
 %    \textsuperscript{5}Austrian Research Institute for AI 
 }
 \titlegraphic{\includegraphics[width=0.075\textwidth]{turing-logo}}
@@ -117,12 +117,12 @@
 \block{Abstract}{
     The No-U-Turn Sampler (NUTS) in \texttt{Stan} (\cite{hoffman2014no,carpenter2017stan}) has demonstrated remarkable sampling robustness and 
     efficiency in a wide range of Bayesian inference problems, 
-    due to the use of self-adaptive Hamiltonian dynamic trajectory simulation length, 
+    due to the use of dynamic Hamiltonian trajectory, 
     and a fine-tuned joint adaptation of step-size and mass matrix. 
     Motivated by these successes, we present 
-    \texttt{AdvancedHMC.jl} (AHMC), a pure Julia implementation of Stan’s built-in NUTS algorithm and 
+    \texttt{AdvancedHMC.jl} (\texttt{AHMC}), a pure Julia implementation of \texttt{Stan}’s built-in NUTS algorithm and 
     related adaptation methods. 
-    We hope \texttt{AdvancedHMC.jl} can help expose Stan’s NUTS to a wider range of users, 
+    We hope \texttt{AdvancedHMC.jl} can help expose \texttt{Stan}’s NUTS to a wider range of users, 
     e.g. those who want to write their models by hand, 
     or using a different probabilistic programming language (e.g. \texttt{Turing}, \texttt{Soss}). 
     In our package, NUTS is defined as a combination of individual components with 
@@ -130,21 +130,22 @@
 %  including the `Hamiltonian` dynamics, the `Metric` space, 
 %  how the dynamics are numerically simulated by an Integrator to build up a `Trajectory`, 
 %  and how a candidate point is sampled from it by a `TrajectorySampler`. 
-%  This abstraction is partially 
+%  This abstraction is 
+partially 
     inspired by 
     (\cite{betancourt2017conceptual}).
     % A Conceptual Introduction to Hamiltonian Monte Carlo” by Michael Betancourt.
 }
 
 \block{Hamiltonian Monte Carlo Components}{
-    Hamiltonian Monte Carlo (HMC) simulates Hamitonian dynamics to make proposals for a Markov chain (\cite{neal2011mcmc}).
-    \texttt{AdvancedHMC.jl} supports the combination of various HMC samplers below.
+    Hamiltonian Monte Carlo (HMC) simulates Hamiltonian dynamics to make proposals for a Markov chain (\cite{neal2011mcmc}).
+    \texttt{AdvancedHMC.jl} supports various HMC samplers below.
     $$
     (\texttt{StaticHMC} \cup \texttt{DynamicHMC}) \times \texttt{Adaptor}.
     $$
     Here $\texttt{StaticHMC}$ are HMC with fixed-length trajectories and 
-    $\texttt{DynamicHMC}$ are HMC with dynamic trajectories 
-    which can be created by a combination of different NUTS components as follows
+    $\texttt{DynamicHMC}$ are HMC with adaptive trajectory length 
+    which can be created by composing NUTS components as follows
     $$
     \texttt{Metric} \times \texttt{Integrator} \times \texttt{TrajectorySampler} \times \texttt{TerminationCriterion},
     $$
@@ -157,15 +158,15 @@
             \texttt{TerminationCriterion} &= \{ \texttt{ClassicNoUTurn}, \texttt{GeneralisedNoUTurn} \}
         \end{aligned}.
     \end{equation*}
-    $\texttt{Adaptor}$ contains any compositional adaptor composed from base adaptors
+    $\texttt{Adaptor}$ can be composed from base adaptors
     $$
     \texttt{BaseAdaptor} \in \{\texttt{Preconditioner}, \texttt{NesterovDualAveraging}\}.
     $$
 
     \textbf{Note 1}: $\texttt{Preconditioner}$ behaves differently based on the choice of metric spaces.
 
-    \textbf{Note 2}: a specific composition of base adaptors called $\texttt{StanHMCAdaptor}$ is provided to construct Stan's windowed adaptor, 
-    which is proved to be robust in practice.
+    \textbf{Note 2}: $\texttt{StanHMCAdaptor}$, a specific composition of base adaptors that is equivalent to \texttt{Stan}'s windowed adaptor, is provided. 
+    This adaptor has been proved to be robust in practice.
 }
 
 \block{Benchmark Models}{
@@ -224,15 +225,15 @@
 
 \column{0.36}
 
-\block{Example Code of Building Stan's NUTS using AHMC}{
+\block{Example Code of Building \texttt{Stan}'s NUTS using \texttt{AHMC}}{
     \lstinputlisting{example.jl}
 }
 
-\block{Sampling Efficiency: Stan's NUTS v.s. AHMC}{
-    To compare the sampling efficiency between Stan and AHMC,
+\block{Sampling Efficiency: \texttt{Stan}'s NUTS v.s. \texttt{AHMC}}{
+    To compare the sampling efficiency between \texttt{Stan} and \texttt{AHMC},
     we run multiple runs of NUTS with target acceptance rate $0.8$ 
     for $2,000$ runs with $1,000$ adaptation steps,
-    where the warm-up samples dropped off.
+    where the warm-up samples dropped.
     Below are figures of distributions of step size and tree depth,
     and the mean effective sample size (ESS) for different variables.
     \begin{tikzfigure}[Gaussian (50 runs); left to right: step size, tree depth, ESS]
@@ -245,12 +246,12 @@
                 \multirow{2}{*}{} & \multirow{2}{*}{$N$} & \multicolumn{2}{c}{ESS} \\
                 & & \multicolumn{1}{c}{$\mu$} & \multicolumn{1}{c}{$\sigma$} \\
                 \midrule
-                Stan & 10 & 513.163 & 466.577 \\
-                AHMC & 10 & 503.535 & 447.722 \\
-                Stan & 100 & 786.531 & 782.231 \\
-                AHMC & 100 & 786.531 & 796.628 \\
-                Stan & 1000 & 864.010 & 876.660 \\
-                AHMC & 1000 & 832.255 & 844.452 \\
+                \texttt{Stan} & 10 & 513.163 & 466.577 \\
+                \texttt{AHMC} & 10 & 503.535 & 447.722 \\
+                \texttt{Stan} & 100 & 786.531 & 782.231 \\
+                \texttt{AHMC} & 100 & 786.531 & 796.628 \\
+                \texttt{Stan} & 1000 & 864.010 & 876.660 \\
+                \texttt{AHMC} & 1000 & 832.255 & 844.452 \\
                 \bottomrule
             \end{tabular}
         }}\hfill\;
@@ -266,12 +267,12 @@
                 \multirow{2}{*}{} & \multirow{2}{*}{$N$} & \multicolumn{2}{c}{ESS} \\
                 & & \multicolumn{1}{c}{$d$} & \multicolumn{1}{c}{$c$} \\
                 \midrule
-                Stan & 10 & 710.762  & 703.327 \\
-                AHMC & 10 & 802.236 & 815.929 \\
-                Stan & 100 & 820.741 & 823.152 \\
-                AHMC & 100 & 814.308 & 846.357 \\
-                Stan & 1000 & 844.478 & 872.961 \\
-                AHMC & 1000 & 829.792 & 859.018 \\
+                \texttt{Stan} & 10 & 710.762  & 703.327 \\
+                \texttt{AHMC} & 10 & 802.236 & 815.929 \\
+                \texttt{Stan} & 100 & 820.741 & 823.152 \\
+                \texttt{AHMC} & 100 & 814.308 & 846.357 \\
+                \texttt{Stan} & 1000 & 844.478 & 872.961 \\
+                \texttt{AHMC} & 1000 & 829.792 & 859.018 \\
                 \bottomrule
             \end{tabular}
         }}\hfill\;
@@ -287,12 +288,12 @@
                 \multirow{2}{*}{} & \multirow{2}{*}{$N$} & \multicolumn{4}{c}{ESS} \\
                 & & \multicolumn{1}{c}{$b_0$} & \multicolumn{1}{c}{$\sigma$} & \multicolumn{1}{c}{$b_1$} & \multicolumn{1}{c}{$b_2$} \\
                 \midrule
-                Stan & 10 & 413.939 & 266.476 & 381.219 & 423.441 \\
-                AHMC & 10 & 354.946 & 263.894 & 411.769 & 399.420 \\
-                Stan & 100 & 621.796 & 729.812 & 465.990 & 608.608 \\
-                AHMC & 100 & 473.005 & 734.189 & 606.996 & 621.543 \\
-                Stan & 1000 & 668.524 & 789.987 & 464.459 & 648.201 \\
-                AHMC & 1000 & 485.988 & 786.577 & 676.097 & 689.344 \\
+                \texttt{Stan} & 10 & 413.939 & 266.476 & 381.219 & 423.441 \\
+                \texttt{AHMC} & 10 & 354.946 & 263.894 & 411.769 & 399.420 \\
+                \texttt{Stan} & 100 & 621.796 & 729.812 & 465.990 & 608.608 \\
+                \texttt{AHMC} & 100 & 473.005 & 734.189 & 606.996 & 621.543 \\
+                \texttt{Stan} & 1000 & 668.524 & 789.987 & 464.459 & 648.201 \\
+                \texttt{AHMC} & 1000 & 485.988 & 786.577 & 676.097 & 689.344 \\
                 \bottomrule
             \end{tabular}
         }}\hfill\;
@@ -308,12 +309,12 @@
                 \multirow{2}{*}{} & \multirow{2}{*}{$N$} & \multicolumn{3}{c}{ESS} \\
                 & & \multicolumn{1}{c}{$a_0$} & \multicolumn{1}{c}{$a_1$} & \multicolumn{1}{c}{$b_\sigma$} \\
                 \midrule
-                Stan & 10 & 221.485 & 215.013 & 266.900 \\
-                AHMC & 10 & 216.491 & 214.459 & 258.638 \\
-                Stan & 20 & 208.286 & 207.041 & 241.080 \\
-                AHMC & 20 & 206.458 & 200.469 & 236.546 \\
-                Stan & 50 & 172.484 & 172.982 & 216.586 \\
-                AHMC & 50 & 200.755 & 201.548 & 247.384 \\
+                \texttt{Stan} & 10 & 221.485 & 215.013 & 266.900 \\
+                \texttt{AHMC} & 10 & 216.491 & 214.459 & 258.638 \\
+                \texttt{Stan} & 20 & 208.286 & 207.041 & 241.080 \\
+                \texttt{AHMC} & 20 & 206.458 & 200.469 & 236.546 \\
+                \texttt{Stan} & 50 & 172.484 & 172.982 & 216.586 \\
+                \texttt{AHMC} & 50 & 200.755 & 201.548 & 247.384 \\
                 \bottomrule
             \end{tabular}
         }}\hfill\;
@@ -329,12 +330,12 @@
                 \multirow{2}{*}{} & \multirow{2}{*}{$N$} & \multicolumn{4}{c}{ESS} \\
                 & & \multicolumn{1}{c}{$\tau$} & \multicolumn{1}{c}{$A$} & \multicolumn{1}{c}{$\nu_1$} & \multicolumn{1}{c}{$\nu_2$} \\
                 \midrule
-                Stan & 10 & 226.463 & 282.656 & 305.614 & 276.557 \\
-                AHMC & 10 & 340.722 & 304.523 & 337.610 & 336.357 \\
-                Stan & 50 & 212.838 & 238.003 & 235.009 & 232.667 \\
-                AHMC & 50 & 248.249 & 238.979 & 248.331 & 255.421 \\
-                Stan & 200 & 244.926 & 264.967 & 268.793 & 270.36 \\
-                AHMC & 200 & 256.638 & 263.098 & 270.978 & 266.769 \\
+                \texttt{Stan} & 10 & 226.463 & 282.656 & 305.614 & 276.557 \\
+                \texttt{AHMC} & 10 & 340.722 & 304.523 & 337.610 & 336.357 \\
+                \texttt{Stan} & 50 & 212.838 & 238.003 & 235.009 & 232.667 \\
+                \texttt{AHMC} & 50 & 248.249 & 238.979 & 248.331 & 255.421 \\
+                \texttt{Stan} & 200 & 244.926 & 264.967 & 268.793 & 270.36 \\
+                \texttt{AHMC} & 200 & 256.638 & 263.098 & 270.978 & 266.769 \\
                 \bottomrule
             \end{tabular}
         }}\hfill\;
@@ -345,7 +346,7 @@
 %\nprounddigits{5}
 
 \column{0.32}
-\block{Computational Efficiency: Stan v.s. Turing}{
+\block{Computational Efficiency: \texttt{Stan} v.s. \texttt{Turing}}{
     \texttt{Turing.jl} is a probabilistic programming language (PPL) in Julia that
     uses \texttt{AdvancedHMC.jl} as its HMC backend.
     All the benchmark models are written in \texttt{Turing} and \texttt{AdvancedHMC.jl}
@@ -354,7 +355,7 @@
     \lstinputlisting{lr.jl}    
     The time to run the five benchmark models in \texttt{Stan} and \texttt{Turing}
     are reported in the table below.
-    \begin{tikztable}[Time comparisons between \texttt{Stan} and \texttt{Turing} (AHMC) for five models using $^1$ 25 runs, $^2$ 50 runs or $^3$ 100 runs.]
+    \begin{tikztable}[Time comparisons between \texttt{Stan} and \texttt{Turing} (\texttt{AHMC}) for five models using $^1$ 25 runs, $^2$ 50 runs or $^3$ 100 runs.]
     \scalebox{0.9}{
     \begin{tabular}{lrrrrrrrrrr}
         \toprule
@@ -362,61 +363,56 @@
         & \multicolumn{2}{c}{Gaussian $^2$} & \multicolumn{2}{c}{SDT $^3$} & \multicolumn{2}{c}{LR $^2$} & \multicolumn{2}{c}{HPR $^1$} & \multicolumn{2}{c}{LBA $^2$} \\
         & \multicolumn{1}{c}{$N$} & \multicolumn{1}{c}{seconds} & \multicolumn{1}{c}{$N$} & \multicolumn{1}{c}{seconds} & \multicolumn{1}{c}{$N$} & \multicolumn{1}{c}{seconds}& \multicolumn{1}{c}{$N$} & \multicolumn{1}{c}{seconds}& \multicolumn{1}{c}{$N$} & \multicolumn{1}{c}{seconds} \\
         \midrule
-        %Stan & 10 & 0.803881 & 10 & 0.775959 & 10 & 0.866924 & 10 & 2.487 & 10 & 1.91799 \\
-        Stan & 10 & 0.8039 & 10 & 0.7759 & 10 & 0.8669 & 10 & 2.4870 & 10 & 1.9179 \\
+        %\texttt{Stan} & 10 & 0.803881 & 10 & 0.775959 & 10 & 0.866924 & 10 & 2.487 & 10 & 1.91799 \\
+        \texttt{Stan} & 10 & 0.8039 & 10 & 0.7759 & 10 & 0.8669 & 10 & 2.4870 & 10 & 1.9179 \\
         %Turing & 10 & 0.336073 & 10 & 0.328538 & 10 & 1.13563 & 10 & 19.4587 & 10 & 2.69062 \\
-        AHMC & 10 & 0.3361 & 10 & 0.3285 & 10 & 1.1356 & 10 & 19.4587 & 10 & 2.6906 \\
-        %Stan & 100 & 0.756092 & 100 & 0.726106 & 100 & 0.982419 & 20 & 3.50248 & 50 & 7.84705 \\
-        Stan & 100 & 0.7561 & 100 & 0.7261 & 100 & 0.9824 & 20 & 3.5025 & 50 & 7.8471 \\
+        \texttt{AHMC} & 10 & 0.3361 & 10 & 0.3285 & 10 & 1.1356 & 10 & 19.4587 & 10 & 2.6906 \\
+        %\texttt{Stan} & 100 & 0.756092 & 100 & 0.726106 & 100 & 0.982419 & 20 & 3.50248 & 50 & 7.84705 \\
+        \texttt{Stan} & 100 & 0.7561 & 100 & 0.7261 & 100 & 0.9824 & 20 & 3.5025 & 50 & 7.8471 \\
         %Turing & 100 & 0.33034 & 100 & 0.320111 & 100 & 1.32024 & 20 & 28.2982 & 50 & 11.027 \\
-        AHMC & 100 & 0.3303 & 100 & 0.3201 & 100 & 1.3202 & 20 & 28.2982 & 50 & 11.0270 \\
-        %Stan & 1000 & 0.761393 & 1000 & 0.708934 & 1000 & 2.26 & 50 & 5.89541 & 200 & 31.3762 \\
-        Stan & 1000 & 0.7614 & 1000 & 0.7089 & 1000 & 2.2600 & 50 & 5.8954 & 200 & 31.3762 \\
+        \texttt{AHMC} & 100 & 0.3303 & 100 & 0.3201 & 100 & 1.3202 & 20 & 28.2982 & 50 & 11.0270 \\
+        %\texttt{Stan} & 1000 & 0.761393 & 1000 & 0.708934 & 1000 & 2.26 & 50 & 5.89541 & 200 & 31.3762 \\
+        \texttt{Stan} & 1000 & 0.7614 & 1000 & 0.7089 & 1000 & 2.2600 & 50 & 5.8954 & 200 & 31.3762 \\
         %Turing & 1000 & 0.508123 & 1000 & 0.317854 & 1000 & 3.83261 & 50 & 40.0322 & 200 & 33.6125 \\
-        AHMC & 1000 & 0.5081 & 1000 & 0.3179 & 1000 & 3.8326 & 50 & 40.0322 & 200 & 33.6125 \\
+        \texttt{AHMC} & 1000 & 0.5081 & 1000 & 0.3179 & 1000 & 3.8326 & 50 & 40.0322 & 200 & 33.6125 \\
         \bottomrule
     \end{tabular}
     }
     \end{tikztable}
+    \vspace{-1em}
 }
 
 \block{Easy Integration of Other Julia Packages}{
-    \textbf{Bijectors.jl} is used inside Turing.jl to do automatic transformations of constrained variables to run HMC.
+    \texttt{Bijectors.jl} is used inside \texttt{Turing.jl} to do automatic transformations of constrained variables to run HMC.
     E.g. a random variable from $\mathcal{T}runcated(\mathcal{C}auchy(0, 5), 0, \infty)$ is constrained to be positive and 
     will be transformed to the real space by the $\log$ function automatically. \\
     
-    \textbf{CuArrays.jl} could be used with AdvancedHMC.jl to run NUTS on GPUs.
+    \texttt{CuArrays.jl} could be used with \texttt{AdvancedHMC.jl} to run NUTS on GPUs.
     In order to run NUTS using CUDA, 
     one only needs to change Line 3 of the demo code 
     from \texttt{q\_init = randn(D)} to \texttt{q\_init = CuArray(randn(D))}, 
     assuming \texttt{logdensity\_f} and \texttt{grad\_f} in Line 6 are GPU friendly;
-    if they are written in pure Julia, they probably supports GPUs automatically. \\
+    if it is written in pure Julia, it probably supports GPUs acceleration automatically. \\
     \textit{How does it work?}
-    All arrays in AdvancedHMC.jl are typed as \texttt{AbstractArray} and
-    the concrete type will be inferred from the initial parameter \texttt{q\_init}.
-    That is to say, if the initial parameter is on GPU, i.e. a \texttt{CuArray},
-    all the internal arrays in AdvancedHMC.jl will be on GPU, so does the NUTS. \\
+   All arrays in \texttt{AdvancedHMC.jl} are abstractly typed, meaning that the concrete type is deduced at compile time from \texttt{q\_init}. That is to say, if \texttt{q\_init} is on the GPU i.e. is a CuArray, all the internal arrays in the NUTS will be too. \\
 
-    \textbf{SoSS.jl} is another PPL in Julia that
+    \texttt{SoSS.jl} is another PPL in Julia that
     uses AdvancedHMC.jl as its backend.
     It is easy for PPLs in Julia with different domain specific languages (DSLs)
-    to use the HMC implementation in AdvancedHMC.jl. \\
+    to use the HMC implementation in \texttt{AdvancedHMC.jl}. \\
 
-    \textbf{DifferentialEquations.jl} is a suite for numerically solving differential equations in Julia 
-    with efficient implementations of solvers for various differential equations.
-    The solvers can be directly used in the Turing model and 
-    perform Bayesian inference on parameters of differential equations. \\
+    \texttt{DifferentialEquations.jl} is the state-of-the-art numerical differential equations solver package, implemented in pure Julia. As such, its solvers can be employed in Turing models, thus enabling \texttt{AHMC} to perform Bayesian inference in the parameters of differential equation models. \\
 
-    \textbf{Flux.jl} is a deep learning packages in Julia.
-    Neural models defined by Flux.jl can be directly used in Turing models.
+    \texttt{Flux.jl} is a deep learning packages in Julia.
+    Neural models defined by \texttt{Flux.jl} can be directly used in Turing models.
     E.g. one can implement a Bayesian neural network in Turing by 
     defining priors on the weights of a Flux-based neural network, and 
     NUTS can be used to draw samples of the weights.
 }
 
 \block{Acknowledgements}{
-    We would like to thank the developers of MCMCBenchmarks.jl, Rob Goedman and Christopher Fisher.
-    With this package we run all the benchmarks and generate all the plots used in this poster.
+    We would like to thank the developers of \texttt{MCMCBenchmarks.jl}, Rob Goedman and Christopher Fisher.
+    With this package we ran all benchmarks and generated all plots presented in this poster.
     % We would also like to thank Martin Trapp for useful discussions on efficient implementations of the benchmark models in Turing.jl.
 }
 
