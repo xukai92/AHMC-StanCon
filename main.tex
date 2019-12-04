@@ -397,7 +397,7 @@ partially
    All arrays in \texttt{AdvancedHMC.jl} are abstractly typed, meaning that the concrete type is deduced at compile time from \texttt{q\_init}. That is to say, if \texttt{q\_init} is on the GPU i.e. is a CuArray, all the internal arrays in the NUTS will be too. \\
 
     \texttt{SoSS.jl} is another PPL in Julia that
-    uses AdvancedHMC.jl as its backend.
+    uses \texttt{AdvancedHMC.jl} as its backend.
     It is easy for PPLs in Julia with different domain specific languages (DSLs)
     to use the HMC implementation in \texttt{AdvancedHMC.jl}. \\
 
